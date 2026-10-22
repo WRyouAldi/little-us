@@ -1,31 +1,28 @@
-# Little Us — WebView
+# Little Us — Our Little Winter World
 
-Little Us adalah prototipe web mobile-first untuk dunia MyWinter, Daisy, sinyal Kangen/Peluk/Kirim Daisy, dan tanggal hubungan 27 November 2025.
+Proyek WebView mobile-first untuk Little Us.
 
-## Isi repository
-- `index.html` — antarmuka web dan integrasi Supabase (URL/key masih placeholder).
-- `supabase/schema.sql` — tabel, RLS, RPC PIN, pembatasan dua anggota, dan realtime.
-- `.github/workflows/pages.yml` — deployment GitHub Pages.
+## Struktur
+- `index.html`: versi web untuk GitHub Pages.
+- `app/`: Android WebView wrapper dan salinan UI yang dibundel untuk APK.
+- `supabase/schema.sql`: skema backend cloud dan ruang pasangan.
+- `.github/workflows/pages.yml`: deploy web ke GitHub Pages.
+- `.github/workflows/android-apk.yml`: build APK Android melalui GitHub Actions.
 
-## Jalankan lokal
-Buka `index.html` di browser untuk melihat UI. Interaksi cloud tidak aktif sampai Supabase dikonfigurasi.
+## Build APK
+1. Buka tab **Actions** pada repository.
+2. Pilih **Build Little Us APK**.
+3. Tekan **Run workflow** pada branch `main`.
+4. Tunggu workflow berstatus sukses.
+5. Buka hasil run, lalu unduh artifact `little-us-debug-apk`.
+6. Ekstrak ZIP artifact dan pasang `app-debug.apk` pada perangkat Android.
 
-## Aktifkan cloud
-1. Buat proyek di Supabase.
-2. Jalankan seluruh `supabase/schema.sql` melalui SQL Editor.
-3. Aktifkan Anonymous Sign-Ins di Authentication.
-4. Ambil Project URL dan anon/publishable key dari Project Settings → API.
-5. Ganti `PASTE_SUPABASE_PROJECT_URL_HERE` dan `PASTE_SUPABASE_ANON_OR_PUBLISHABLE_KEY_HERE` di `index.html`.
-6. Commit perubahan, lalu deploy ulang Pages.
-7. Buka aplikasi dari dua perangkat dan masukkan PIN bersama `271125`.
+APK yang dihasilkan adalah debug APK untuk pengujian, bukan APK rilis bertanda tangan untuk distribusi publik.
 
-**Jangan pernah memasukkan service_role key ke frontend atau repository.** PIN bersama ini nyaman untuk prototipe dua orang, bukan autentikasi kuat untuk data sensitif. RLS membatasi akses interaksi kepada anggota ruang; uji konfigurasi keamanan sebelum menyimpan data pribadi.
+## Konfigurasi cloud
+Cloud belum aktif sampai proyek Supabase dibuat, SQL di `supabase/schema.sql` dijalankan, Anonymous Sign-Ins diaktifkan, lalu URL dan anon/publishable key dimasukkan ke `index.html` dan `app/src/main/assets/index.html`. Jangan pernah memasukkan `service_role` key ke aplikasi.
 
-## GitHub Pages
-Repository → Settings → Pages → Source: GitHub Actions. Workflow `pages.yml` akan menerbitkan halaman dari root repository setelah workflow dijalankan.
-
-## Batasan saat ini
-- Realtime memerlukan kedua perangkat online dan aplikasi terbuka.
+## Batasan
 - Push notification saat aplikasi tertutup belum dibuat.
-- Memory Garden belum terhubung ke ekspor chat.
-- Tidak ada autentikasi berbasis email/password; pengguna memakai anonymous auth dan PIN bersama.
+- Uji koneksi dua perangkat baru bisa dilakukan setelah Supabase dikonfigurasi.
+- PIN bersama `271125` memudahkan koneksi prototipe, tetapi bukan pengganti autentikasi kuat untuk data sensitif.
