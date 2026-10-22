@@ -164,9 +164,21 @@ header{padding-top:calc(18px + env(safe-area-inset-top))}
 .modal{background:linear-gradient(150deg,rgba(67,42,72,.92),rgba(27,15,36,.96));-webkit-backdrop-filter:blur(28px) saturate(130%);backdrop-filter:blur(28px) saturate(130%)}
 @media(prefers-reduced-transparency:reduce){.progressive-glass .blur-layer{display:none}.pill,.date,.action,.modal-bg,.modal{-webkit-backdrop-filter:none;backdrop-filter:none}}
 @media(max-width:420px){.progressive-glass .top-soft{--blur:1.5px}.progressive-glass .top-mid{--blur:3px}.progressive-glass .bottom-soft{--blur:2px}.progressive-glass .bottom-mid{--blur:4px}}
+/* Realistic 3D world layer: actual WebGL scene, UI stays minimal and readable */
+#world3d{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:auto;touch-action:pan-y;outline:none}
+body{background:#100b19}
+body:after{z-index:0}
+.sky,.snow,.hills,.moon,.house,.daisy{display:none!important}
+header,.bottom{z-index:3}
+main{z-index:2;background:transparent;pointer-events:none}
+main .date-wrap{pointer-events:auto;z-index:4}
+.progressive-glass{z-index:1}
+header .pill,.bottom .action,.date{backdrop-filter:blur(16px) saturate(120%);-webkit-backdrop-filter:blur(16px) saturate(120%)}
+.bottom{background:linear-gradient(to top,rgba(14,8,21,.62),rgba(14,8,21,.22) 72%,transparent);padding-top:26px}
+@media(max-height:700px){.bottom{padding-top:16px}}
 </style>
 </head>
-<body><div class="sky"></div><div class="snow"></div><div class="progressive-glass" aria-hidden="true"><span class="blur-layer top-soft"></span><span class="blur-layer top-mid"></span><span class="blur-layer bottom-soft"></span><span class="blur-layer bottom-mid"></span></div>
+<body><canvas id="world3d" aria-label="Dunia 3D Little Us: taman malam, rumah bercahaya, dan Daisy"></canvas><div class="sky"></div><div class="snow"></div><div class="progressive-glass" aria-hidden="true"><span class="blur-layer top-soft"></span><span class="blur-layer top-mid"></span><span class="blur-layer bottom-soft"></span><span class="blur-layer bottom-mid"></span></div>
 <header><div class="brand">LITTLE US<small>our little winter world</small></div><button class="pill" id="pairButton">♡ Hubungkan</button></header>
 <main><div class="moon"></div><div class="hills"></div><div class="house" id="house" aria-label="Rumah Little Us"><div class="roof"></div><div class="window"></div><div class="window two"></div><div class="door"></div></div><div class="daisy" id="daisy" aria-label="Daisy"><div id="petals"></div><div class="center"></div><div class="stem"></div><div class="leaf"></div></div><div class="date-wrap"><button class="date" id="dateButton">♡ 27112025 ♡</button></div></main>
 <section class="bottom"><div class="hint" id="hint">Sentuh Daisy untuk melihatnya mekar 🌼</div><div class="actions"><button class="action" data-kind="kangen"><span>♡</span>Kangen</button><button class="action" data-kind="peluk"><span>☁</span>Peluk</button><button class="action" data-kind="daisy"><span>🌼</span>Kirim Daisy</button></div></section>
@@ -214,4 +226,68 @@ document.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>send(b.dataset
 function subscribe(){if(!pair)return;signalsRef=db.ref('littleUs/room/signals');if(signalListener)signalsRef.off('child_added',signalListener);signalListener=snap=>{const e=snap.val();if(!e||e.senderId===pair.uid)return;const msg={kangen:'Pasangan mengirim Kangen ♡',peluk:'Pasangan mengirim Peluk ☁',daisy:'Pasangan mengirim Daisy 🌼'}[e.kind]||'Ada sinyal baru ♡';say(msg);if(e.kind==='daisy')$('daisy').animate([{filter:'drop-shadow(0 0 0 #ffe889)'},{filter:'drop-shadow(0 0 28px #ffe889)'},{filter:'drop-shadow(0 0 8px #ffe889)'}],{duration:1000})};signalsRef.limitToLast(1).on('child_added',signalListener)}
 async function loadEvents(){if(!pair){$('events').innerHTML='<p>Hubungkan ke ruang Little Us untuk melihat interaksi.</p>';return}
 try{const snap=await db.ref('littleUs/room/signals').limitToLast(20).once('value');const rows=[];snap.forEach(s=>rows.push(s.val()));rows.reverse();const label={kangen:'Kangen ♡',peluk:'Peluk ☁',daisy:'Kirim Daisy 🌼'};$('events').innerHTML=rows.map(e=>'<div class="event">'+(label[e.kind]||'Sinyal')+' · '+String(e.senderName||'Us')+'<br><small>'+(e.createdAt?new Date(e.createdAt).toLocaleString('id-ID'):'Baru saja')+'</small></div>').join('')||'<p>Belum ada jejak kecil. Kirim sinyal pertama ♡</p>'}catch(e){$('events').textContent='Riwayat belum dapat dimuat. Periksa aturan database.'}}
+</script><script type="module">
+(async()=>{
+ const canvas=document.getElementById('world3d');
+ try{
+  const THREE=await import('https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js');
+  const scene=new THREE.Scene();
+  scene.background=new THREE.Color('#140d20');
+  scene.fog=new THREE.FogExp2('#21162b',0.032);
+  const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,.1,100);
+  camera.position.set(0,3.5,10.5);camera.lookAt(0,1.2,0);
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'low-power'});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));
+  renderer.setSize(innerWidth,innerHeight,false);
+  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
+  scene.add(new THREE.HemisphereLight('#b8b7e8','#25182b',2.0));
+  const moonLight=new THREE.DirectionalLight('#c7d4ff',1.4);moonLight.position.set(-4,8,5);scene.add(moonLight);
+  const warm=new THREE.PointLight('#ffb96b',18,8,2);warm.position.set(0,1.5,-2.3);scene.add(warm);
+  const moon=new THREE.Mesh(new THREE.SphereGeometry(.55,32,24),new THREE.MeshStandardMaterial({color:'#fff0ca',emissive:'#ffce83',emissiveIntensity:1.6,roughness:.7}));moon.position.set(3.4,5.5,-5);scene.add(moon);
+  const moonGlow=new THREE.Mesh(new THREE.SphereGeometry(.78,24,16),new THREE.MeshBasicMaterial({color:'#ffdba4',transparent:true,opacity:.08,depthWrite:false}));moonGlow.position.copy(moon.position);scene.add(moonGlow);
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(60,60,64,64),new THREE.MeshStandardMaterial({color:'#273329',roughness:1,metalness:0}));
+  ground.rotation.x=-Math.PI/2;ground.position.y=-.04;ground.receiveShadow=true;
+  const pos=ground.geometry.attributes.position;for(let i=0;i<pos.count;i++){const x=pos.getX(i),y=pos.getY(i);pos.setZ(i,Math.sin(x*.38)*.12+Math.cos(y*.32)*.1);}ground.geometry.computeVertexNormals();scene.add(ground);
+  function mat(color,roughness=.8,extra={}){return new THREE.MeshStandardMaterial({color,roughness,...extra})}
+  function box(w,h,d,material,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;scene.add(m);return m}
+  const wall=mat('#50384d'),roofMat=mat('#2a2036'),trim=mat('#c39a9e'),dark=mat('#20172a'),glass=mat('#ffca77',.25,{emissive:'#ff9c3c',emissiveIntensity:2.2});
+  // Cottage: real 3D walls, gabled roof, doorway and warm windows.
+  box(2.8,1.7,1.8,wall,0,.86,-2.5);
+  const roofGeo=new THREE.BufferGeometry();
+  roofGeo.setAttribute('position',new THREE.Float32BufferAttribute([-1.65,1.7,-3.5,0,2.75,-3.5,1.65,1.7,-3.5,-1.65,1.7,-1.5,0,2.75,-1.5,1.65,1.7,-1.5],3));
+  roofGeo.setIndex([0,1,2,3,5,4,0,3,4,0,4,1,1,4,5,1,5,2]);roofGeo.computeVertexNormals();
+  const roof=new THREE.Mesh(roofGeo,roofMat);roof.castShadow=true;roof.receiveShadow=true;scene.add(roof);
+  box(.48,.9,.08,dark,0,.46,-1.57);
+  for(const x of [-.82,.82]){box(.48,.58,.07,trim,x,1.04,-1.56);box(.34,.43,.035,glass,x,1.05,-1.51)}
+  const windowGlow=new THREE.PointLight('#ffb45c',3.4,4,2);windowGlow.position.set(0,1.15,-1.25);scene.add(windowGlow);
+  // Rolling hills as layered curved ridges.
+  for(let i=0;i<4;i++){const geo=new THREE.SphereGeometry(1,40,20,0,Math.PI*2,0,Math.PI/2);const hill=new THREE.Mesh(geo,mat(['#303044','#343448','#293344','#24323a'][i]));hill.scale.set(8+i*1.5,1.1+i*.16,2.2);hill.position.set((i%2?2:-2),-.1-i*.1,-5-i*1.5);hill.receiveShadow=true;scene.add(hill)}
+  // Daisy with individually modelled petals, center, stem and leaves.
+  const flower=new THREE.Group();flower.position.set(-.95,1.1,.15);scene.add(flower);
+  const petalMat=mat('#fff0c1',.48),petalSide=mat('#e6c67a',.7),centerMat=mat('#8d5628',.9),stemMat=mat('#64835c'),leafMat=mat('#75966a');
+  const stem=new THREE.Mesh(new THREE.CylinderGeometry(.035,.05,1.55,10),stemMat);stem.position.set(0,-.78,0);stem.rotation.z=-.12;stem.castShadow=true;flower.add(stem);
+  for(let i=0;i<2;i++){const leaf=new THREE.Mesh(new THREE.SphereGeometry(.24,16,10),leafMat);leaf.scale.set(1.5,.42,.22);leaf.position.set(i?-.19:.2,-.75-i*.3,0);leaf.rotation.z=i?-.55:.48;leaf.castShadow=true;flower.add(leaf)}
+  const petals=[];
+  for(let i=0;i<13;i++){const a=i*Math.PI*2/13;const p=new THREE.Mesh(new THREE.SphereGeometry(1,18,12),i%3===0?petalSide:petalMat);p.scale.set(.17,.42,.085);p.position.set(Math.cos(a)*.36,.04+Math.sin(a)*.36,0);p.rotation.z=-a+Math.PI/2;p.castShadow=true;flower.add(p);petals.push({mesh:p,a})}
+  const center=new THREE.Mesh(new THREE.SphereGeometry(.24,24,16),centerMat);center.position.set(0,.02,.08);center.castShadow=true;flower.add(center);
+  const flowerLight=new THREE.PointLight('#ffe4a0',1.5,3,2);flowerLight.position.set(0,.1,.6);flower.add(flowerLight);
+  // Small fireflies; restrained, not glitter overload.
+  const fireflies=[];const flyMat=new THREE.MeshBasicMaterial({color:'#f7dca0'});
+  for(let i=0;i<24;i++){const o=new THREE.Mesh(new THREE.SphereGeometry(.018+(i%3)*.006,8,6),flyMat);o.position.set((Math.random()-.5)*11,.3+Math.random()*2.2,-1-Math.random()*8);scene.add(o);fireflies.push({o,phase:Math.random()*6.28,baseY:o.position.y})}
+  const starsGeo=new THREE.BufferGeometry(),starPos=[];for(let i=0;i<180;i++)starPos.push((Math.random()-.5)*22,2+Math.random()*9,-7-Math.random()*12);starsGeo.setAttribute('position',new THREE.Float32BufferAttribute(starPos,3));scene.add(new THREE.Points(starsGeo,new THREE.PointsMaterial({color:'#dcd9f4',size:.035,transparent:true,opacity:.7})));
+  let targetX=0,targetY=0,lookX=0,lookY=1.1,opened=false;
+  function pointer(e){const r=canvas.getBoundingClientRect();targetX=((e.clientX-r.left)/r.width-.5)*.7;targetY=((e.clientY-r.top)/r.height-.5)*.25}
+  canvas.addEventListener('pointermove',pointer,{passive:true});
+  canvas.addEventListener('click',e=>{if(e.target===canvas){flower.scale.setScalar(1.12);setTimeout(()=>flower.scale.setScalar(1),450);document.getElementById('hint').textContent='Daisy mekar untuk cerita kita 🌼'}});
+  document.getElementById('daisy').addEventListener('click',()=>{flower.scale.setScalar(1.15);setTimeout(()=>flower.scale.setScalar(1),500)});
+  document.getElementById('house').addEventListener('click',()=>{});
+  function resize(){camera.aspect=innerWidth/innerHeight;camera.position.z=innerWidth<500?11.8:9.6;camera.position.y=innerWidth<500?3.65:3.2;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setSize(innerWidth,innerHeight,false)}
+  addEventListener('resize',resize);
+  const clock=new THREE.Clock();
+  function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();lookX+=(targetX-lookX)*.025;lookY+=(1.1+targetY-lookY)*.025;camera.position.x=lookX;camera.lookAt(lookX*.35,lookY,0);flower.rotation.z=Math.sin(t*.7)*.025;flower.position.y=1.1+Math.sin(t*.85)*.045;petals.forEach((p,i)=>{p.mesh.rotation.z=Math.sin(t*.6+i*.7)*.018});moonGlow.material.opacity=.055+Math.sin(t*.45)*.018;fireflies.forEach(f=>{f.o.position.y=f.baseY+Math.sin(t*1.2+f.phase)*.16;f.o.position.x+=Math.sin(t*.35+f.phase)*.0008});renderer.render(scene,camera)}
+  animate();
+ }catch(err){console.error('Little Us 3D scene failed:',err);canvas.style.background='radial-gradient(ellipse at 50% 40%,#48334c,#140d20)';document.getElementById('hint').textContent='Dunia Little Us sedang dimuat. Periksa koneksi internet untuk visual 3D.'}
+})();
 </script></body></html>
