@@ -32,18 +32,26 @@ $('daisy').onclick=()=>{document.querySelector('.daisy').animate([{transform:'tr
 $('house').onclick=()=>{if(pair){modal('eventsModal');loadEvents()}else modal('pairModal)};
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>modal(b.dataset.close,false));
 async function initFirebase(){if(!auth||!db)throw new Error('Firebase SDK belum termuat. Periksa koneksi internet.');if(!auth.currentUser)await auth.signInAnonymously();return auth.currentUser}
-$('join').onclick=async()=>{const pin=$('pin').value.trim();if(pin!=='271125'){$('pairStatus').textContent='PIN bersama harus 271125 ♡';return}
-$('pairStatus').textContent='Menghubungkan ke Firebase…';
-try{const user=await initFirebase();const membersRef=db.ref('littleUs/room/members');const memberRef=membersRef.child(user.uid);let snap=await memberRef.once('value');
-if(!snap.exists()){
- const all=await membersRef.once('value');const members=all.val()||{};if(Object.keys(members).length>=2){$('pairStatus').textContent='Ruang sudah berisi dua perangkat.';return}
- const displayName=Object.keys(members).length===0?'User 1':'User 2';
- await memberRef.set({displayName,joinedAt:firebase.database.ServerValue.TIMESTAMP,pinProof:pin});
- snap=await memberRef.once('value');
-}
-pair={uid:user.uid,displayName:snap.val().displayName};$('pairButton').textContent='♡ '+pair.displayName;
-$('pairStatus').textContent='Terhubung sebagai '+pair.displayName+' ♡';modal('pairModal',false);say('Ruang Little Us terhubung ♡');subscribe();
-}catch(e){console.error(e);$('pairStatus').textContent='Belum berhasil: '+(e.code==='auth/operation-not-allowed'?'aktifkan Anonymous di Firebase Authentication.':e.message||'periksa Rules database.')}}; 
+$('join').onclick=async()=>{
+ const pin=$('pin').value.trim();
+ if(pin!=='271125'){$('pairStatus').textContent='PIN bersama harus 271125 ♡';return}
+ $('pairStatus').textContent='Menyiapkan identitas perangkat…';
+ try{
+  const user=await initFirebase();
+  const uid=user.uid;
+  $('pairStatus').textContent='ID perangkat (salin ke Firebase Rules): '+uid+' — jika belum didaftarkan, akses akan ditolak. Buka petunjuk SETUP_FIREBASE.md di GitHub.';
+  try{
+   await db.ref('littleUs/room/signals').limitToLast(1).once('value');
+   pair={uid,displayName:'Little Us'};
+   $('pairButton').textContent='♡ Terhubung';
+   $('pairStatus').textContent='Terhubung dengan ruang Little Us ♡';
+   modal('pairModal',false);say('Ruang Little Us terhubung ♡');subscribe();
+  }catch(dbError){
+   console.warn(dbError);
+   $('pairStatus').textContent='ID perangkat kamu: '+uid+' | Belum diizinkan. Tambahkan UID ini ke Rules sesuai SETUP_FIREBASE.md, lalu tekan Hubungkan lagi.';
+  }
+ }catch(e){console.error(e);$('pairStatus').textContent='Gagal masuk: '+(e.code==='auth/operation-not-allowed'?'aktifkan Anonymous di Firebase Authentication.':e.message||'periksa koneksi internet.')}
+}; 
 async function send(kind){if(!pair||!auth.currentUser){modal('pairModal');say('Hubungkan ke ruang Little Us terlebih dahulu ♡');return}
 const labels={kangen:'Kangen ♡',peluk:'Peluk ☁',daisy:'Daisy 🌼'};say('Mengirim '+labels[kind]+'…');
 try{await db.ref('littleUs/room/signals').push({senderId:pair.uid,senderName:pair.displayName,kind,createdAt:firebase.database.ServerValue.TIMESTAMP});say('Terkirim untuk pasangan ♡')}catch(e){console.error(e);say('Belum terkirim. Periksa aturan Firebase Database.')}}
