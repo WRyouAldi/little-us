@@ -26,7 +26,15 @@ const canvas=$('world'),scene=new THREE.Scene();scene.background=new THREE.Color
 const camera=new THREE.PerspectiveCamera(43,innerWidth/innerHeight,.1,100);camera.position.set(0,3.2,10.6);camera.lookAt(0,1,0);
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight,false);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
 scene.add(new THREE.HemisphereLight('#c6c2ed','#211629',2));const moonLight=new THREE.DirectionalLight('#c8d3ff',1.5);moonLight.position.set(-4,8,5);moonLight.castShadow=true;scene.add(moonLight);const warm=new THREE.PointLight('#ffb96b',17,9,2);warm.position.set(0,1.5,-2.2);scene.add(warm);
-function mat(color,roughness=.8,extra={}){return new THREE.MeshStandardMaterial({color,roughness,...extra})}function proceduralTexture(base,detail,kind='grain'){
+function mat(color,roughness=.8,extra={}){return new THREE.MeshStandardMaterial({color,roughness,...extra})}function organicPetalGeometry(){
+ const g=new THREE.BufferGeometry(),positions=[],uvs=[],indices=[];const rows=20,cols=8;
+ for(let r=0;r<=rows;r++){const t=r/rows;const width=.19*Math.pow(Math.sin(Math.PI*t),.72)*(0.72+0.28*t);const z=.045*Math.sin(Math.PI*t);
+  for(let c=0;c<=cols;c++){const u=c/cols*2-1;positions.push(u*width,t,z*(1-u*u));uvs.push(c/cols,t)}
+ }
+ for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const a=r*(cols+1)+c,b=a+cols+1;indices.push(a,b,a+1,b,b+1,a+1)}
+ g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));g.setIndex(indices);g.computeVertexNormals();return g
+}
+function proceduralTexture(base,detail,kind='grain'){
  const c=document.createElement('canvas');c.width=256;c.height=256;const x=c.getContext('2d');x.fillStyle=base;x.fillRect(0,0,256,256);
  let seed=kind==='grass'?37:kind==='wood'?91:kind==='roof'?53:17;
  const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
@@ -48,8 +56,9 @@ for(let i=0;i<5;i++){const hill=addMesh(new THREE.SphereGeometry(1,36,18,0,Math.
 const cottageMat=new THREE.MeshStandardMaterial({color:'#50384d',roughness:.94,map:wallTexture}),roofMat=new THREE.MeshStandardMaterial({color:'#2a2036',roughness:.82,map:roofTexture}),trim=new THREE.MeshStandardMaterial({color:'#c39a9e',roughness:.7,map:woodTexture}),glass=mat('#ffca77',.22,{emissive:'#ff9c3c',emissiveIntensity:1.6});
 addMesh(new THREE.BoxGeometry(2.8,1.7,1.8),cottageMat,[0,.84,-2.5]);const roofGeo=new THREE.BufferGeometry();roofGeo.setAttribute('position',new THREE.Float32BufferAttribute([-1.65,1.7,-3.5,0,2.75,-3.5,1.65,1.7,-3.5,-1.65,1.7,-1.5,0,2.75,-1.5,1.65,1.7,-1.5],3));roofGeo.setIndex([0,1,2,3,5,4,0,3,4,0,4,1,1,4,5,1,5,2]);roofGeo.computeVertexNormals();const roof=new THREE.Mesh(roofGeo,roofMat);roof.castShadow=true;scene.add(roof);
 for(const x of [-.82,.82]){addMesh(new THREE.BoxGeometry(.48,.58,.07),trim,[x,1.04,-1.56]);addMesh(new THREE.BoxGeometry(.34,.43,.035),glass,[x,1.05,-1.51])}addMesh(new THREE.BoxGeometry(.48,.9,.08),mat('#20172a'),[0,.46,-1.57]);
-const flower=new THREE.Group();flower.position.set(-1.0,1.18,.15);scene.add(flower);const stem=new THREE.Mesh(new THREE.CylinderGeometry(.035,.05,1.55,10),mat('#64835c'));stem.position.set(0,-.78,0);stem.rotation.z=-.12;flower.add(stem);for(let i=0;i<2;i++){const leaf=new THREE.Mesh(new THREE.SphereGeometry(.24,16,10),mat('#75966a'));leaf.scale.set(1.5,.42,.22);leaf.position.set(i?-.19:.2,-.75-i*.3,0);leaf.rotation.z=i?-.55:.48;flower.add(leaf)}
-const petals=[];for(let i=0;i<13;i++){const a=i*Math.PI*2/13;const p=new THREE.Mesh(new THREE.SphereGeometry(1,18,12),new THREE.MeshStandardMaterial({color:i%3===0?'#e6c67a':'#fff0c1',roughness:.42,map:petalTexture,side:THREE.DoubleSide}));p.scale.set(.17,.42,.085);p.position.set(Math.cos(a)*.36,.04+Math.sin(a)*.36,0);p.rotation.z=-a+Math.PI/2;flower.add(p);petals.push(p)}const center=addMesh(new THREE.SphereGeometry(.24,24,16),mat('#8d5628'),[-1,1.2,.23]);scene.remove(center);center.position.set(0,.02,.08);flower.add(center);
+const flower=new THREE.Group();flower.position.set(-1.0,1.18,.15);scene.add(flower);const stem=new THREE.Mesh(new THREE.CylinderGeometry(.035,.05,1.55,10),mat('#64835c'));stem.position.set(0,-.78,0);stem.rotation.z=-.12;flower.add(stem);const organicGeometry=organicPetalGeometry();
+for(let i=0;i<2;i++){const leaf=new THREE.Mesh(organicGeometry,mat('#75966a',.86));leaf.scale.set(1.5,.42,.2);leaf.position.set(i?-.19:.2,-.75-i*.3,0);leaf.rotation.z=i?-.55:.48;leaf.castShadow=true;leaf.receiveShadow=true;flower.add(leaf)}
+const petals=[];for(let i=0;i<13;i++){const a=i*Math.PI*2/13;const p=new THREE.Mesh(organicGeometry,new THREE.MeshStandardMaterial({color:i%3===0?'#e6c67a':'#fff0c1',roughness:.42,map:petalTexture,side:THREE.DoubleSide}));p.scale.set(.95,.42,.12);p.position.set(Math.cos(a)*.36,.04+Math.sin(a)*.36,0);p.rotation.z=-a+Math.PI/2;p.castShadow=true;p.receiveShadow=true;flower.add(p);petals.push(p)}const center=addMesh(new THREE.SphereGeometry(.24,24,16),mat('#8d5628'),[-1,1.2,.23]);scene.remove(center);center.position.set(0,.02,.08);flower.add(center);
 
 // Procedural 3D details: trees, stone path, window mullions and flower seed texture.
 const barkMat=new THREE.MeshStandardMaterial({color:'#49352f',roughness:.96,map:woodTexture});
