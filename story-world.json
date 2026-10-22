@@ -1,0 +1,56 @@
+{
+  "title": "Little Us — The World of Your Story",
+  "source": "Chat WhatsApp dengan MyWinter ❄️❤️.txt",
+  "note": "Ringkasan tema berdasarkan percakapan bertanggal; bukan kutipan verbatim. Interpretasi emosi tetap berhati-hati.",
+  "moments": [
+    {
+      "date": "2025-04-07",
+      "title": "Hal kecil yang dijaga",
+      "theme": "care",
+      "description": "Perhatian muncul lewat memastikan sudah makan, menyemangati pekerjaan, mengingatkan istirahat, dan memastikan perjalanan aman.",
+      "evidence": "Percakapan tentang makanan, rutinitas kerja, kelelahan, dan istirahat."
+    },
+    {
+      "date": "2025-04-08",
+      "title": "Candaan yang jadi milik kita",
+      "theme": "playful",
+      "description": "Obrolan ringan berkembang menjadi lelucon berulang tentang foto kaki, foto rambut, dan mencari angin bersama.",
+      "evidence": "Percakapan tentang foto, sandal, dan rencana mencari angin bersama."
+    },
+    {
+      "date": "2025-11-27",
+      "title": "Tanggal yang kita tandai",
+      "theme": "milestone",
+      "description": "Tanggal ini menjadi penanda hubungan di Little Us. Percakapan sebelum tanggal ini tetap diperlakukan sebagai bagian dari perjalanan menuju penanda tersebut.",
+      "evidence": "Tanggal hubungan yang ditetapkan pada proyek Little Us; bukan kutipan WhatsApp."
+    },
+    {
+      "date": "2025-12-03",
+      "title": "Bahasa kecil kita",
+      "theme": "playful",
+      "description": "Gaya bercanda khas muncul melalui typo lucu, panggilan sayang, dan obrolan kopi serta makanan.",
+      "evidence": "Percakapan tentang kopi, makanan, dan candaan salah ketik."
+    },
+    {
+      "date": "2026-08-18",
+      "title": "Candaan yang berulang",
+      "theme": "warmth",
+      "description": "Gurauan tentang matahari pagi dan vitamin D dipelesetkan menjadi permainan kata dengan nama Desi.",
+      "evidence": "Percakapan tentang jogging, matahari, dan permainan kata vitamin D."
+    },
+    {
+      "date": "2026-09-11",
+      "title": "Saat komunikasi berubah",
+      "theme": "reflection",
+      "description": "Percakapan memuat pembicaraan serius tentang perubahan komunikasi, rasa kurang mendapat kabar, dan permintaan maaf. Momen ini ditampilkan untuk refleksi, bukan untuk menyalahkan.",
+      "evidence": "Percakapan tentang perubahan komunikasi dan saling menjelaskan."
+    },
+    {
+      "date": "2026-10-16",
+      "title": "Tetap saling mendukung",
+      "theme": "support",
+      "description": "Obrolan berisi bantuan memahami pilihan pekerjaan dan dokumen lamaran, diselingi pengingat untuk makan.",
+      "evidence": "Percakapan tentang lamaran kerja dan saling mengingatkan makan."
+    }
+  ]
+}
