@@ -29,7 +29,7 @@ function updateDays(){const start=new Date(2025,10,27),now=new Date();$('days').
 updateDays();setInterval(updateDays,60000);
 $('pairButton').onclick=()=>modal('pairModal');$('dateButton').onclick=()=>modal('dateModal');$('showEvents').onclick=()=>{modal('dateModal',false);modal('eventsModal');loadEvents()};
 $('daisy').onclick=()=>{document.querySelector('.daisy').animate([{transform:'translateX(-50%) scale(1)'},{transform:'translateX(-50%) scale(1.16) rotate(8deg)'},{transform:'translateX(-50%) scale(1)'}],{duration:650,easing:'ease-out'});say('Daisy mekar untuk cerita kita 🌼')};
-$('house').onclick=()=>{if(pair){modal('eventsModal');loadEvents()}else modal('pairModal)};
+$('house').onclick=()=>{if(pair){modal('eventsModal');loadEvents()}else modal('pairModal')};
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>modal(b.dataset.close,false));
 async function initFirebase(){if(!auth||!db)throw new Error('Firebase SDK belum termuat. Periksa koneksi internet.');if(!auth.currentUser)await auth.signInAnonymously();return auth.currentUser}
 $('join').onclick=async()=>{
