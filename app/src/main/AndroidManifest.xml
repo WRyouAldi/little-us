@@ -4,6 +4,7 @@
     <application
         android:allowBackup="false"
         android:label="Little Us"
+        android:icon="@drawable/ic_launcher"
         android:usesCleartextTraffic="false"
         android:theme="@style/AppTheme"
         android:supportsRtl="true">
