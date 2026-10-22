@@ -1,0 +1,37 @@
+name: Little Us Mobile Render Test
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'story-world.html'
+      - 'tests/mobile-render.mjs'
+      - '.github/workflows/mobile-render-test.yml'
+  workflow_dispatch:
+jobs:
+  mobile-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Start local static server
+        run: |
+          python3 -m http.server 4173 > /tmp/littleus-http.log 2>&1 &
+          echo $! > /tmp/littleus-http.pid
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4173/story-world.html >/dev/null && break || sleep 1; done
+      - name: Render and test Android-sized viewport
+        run: node tests/mobile-render.mjs
+      - name: Upload mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: little-us-mobile-render
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 14
