@@ -169,7 +169,7 @@ header{padding-top:calc(18px + env(safe-area-inset-top))}
 body{background:#100b19}
 body:after{z-index:0}
 .sky,.snow,.hills,.moon,.house,.daisy{display:none!important}
-header,.bottom{z-index:3}
+header,.bottom{z-index:3}.header-actions{display:flex;align-items:center;gap:8px}.world-entry{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:inherit;font-size:12px;white-space:nowrap;border:1px solid rgba(246,217,145,.42)}@media(max-width:420px){.header-actions{gap:5px}.world-entry{font-size:10px;padding:8px 9px}header .pill#pairButton{font-size:10px;padding:8px 9px}}
 main{z-index:2;background:transparent;pointer-events:none}
 main .date-wrap{pointer-events:auto;z-index:4}
 .progressive-glass{z-index:1}
@@ -179,7 +179,7 @@ header .pill,.bottom .action,.date{backdrop-filter:blur(16px) saturate(120%);-we
 </style>
 </head>
 <body><canvas id="world3d" aria-label="Dunia 3D Little Us: taman malam, rumah bercahaya, dan Daisy"></canvas><div class="sky"></div><div class="snow"></div><div class="progressive-glass" aria-hidden="true"><span class="blur-layer top-soft"></span><span class="blur-layer top-mid"></span><span class="blur-layer bottom-soft"></span><span class="blur-layer bottom-mid"></span></div>
-<header><div class="brand">LITTLE US<small>our little winter world</small></div><button class="pill" id="pairButton">♡ Hubungkan</button></header>
+<header><div class="brand">LITTLE US<small>our little winter world</small></div><div class="header-actions"><a class="pill world-entry" href="story-world.html" aria-label="Masuk ke dunia kenangan">✦ Dunia Kenangan</a><button class="pill" id="pairButton">♡ Hubungkan</button></div></header>
 <main><div class="moon"></div><div class="hills"></div><div class="house" id="house" aria-label="Rumah Little Us"><div class="roof"></div><div class="window"></div><div class="window two"></div><div class="door"></div></div><div class="daisy" id="daisy" aria-label="Daisy"><div id="petals"></div><div class="center"></div><div class="stem"></div><div class="leaf"></div></div><div class="date-wrap"><button class="date" id="dateButton">♡ 27112025 ♡</button></div></main>
 <section class="bottom"><div class="hint" id="hint">Sentuh Daisy untuk melihatnya mekar 🌼</div><div class="actions"><button class="action" data-kind="kangen"><span>♡</span>Kangen</button><button class="action" data-kind="peluk"><span>☁</span>Peluk</button><button class="action" data-kind="daisy"><span>🌼</span>Kirim Daisy</button></div></section>
 <div class="modal-bg" id="pairModal"><div class="modal"><h2>Ruang kecil kita ♡</h2><p>Masukkan PIN bersama untuk menghubungkan dua perangkat.</p><input id="pin" inputmode="numeric" maxlength="6" placeholder="••••••" aria-label="PIN pasangan"><button class="primary" id="join">Hubungkan</button><div class="status" id="pairStatus">Perlu konfigurasi cloud satu kali.</div><div style="font-size:11px;line-height:1.5;margin-top:10px;color:#ffe5b8">Firebase: little-us-723b7 · Realtime Database siap dikonfigurasi.</div><button class="secondary" data-close="pairModal">Nanti saja</button></div></div>
