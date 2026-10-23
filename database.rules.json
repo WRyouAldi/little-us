@@ -4,10 +4,14 @@
     ".write": false,
     "littleUs": {
       "room": {
+        "memories": {
+          ".read": "auth != null && auth.token.roomMember == true",
+          ".write": false
+        },
         "signals": {
-          ".read": "auth != null && (auth.uid == 'GANTI_UID_HP_1' || auth.uid == 'GANTI_UID_HP_2')",
+          ".read": "auth != null && auth.token.roomMember == true",
           "$signalId": {
-            ".write": "auth != null && (auth.uid == 'GANTI_UID_HP_1' || auth.uid == 'GANTI_UID_HP_2') && newData.child('senderId').val() == auth.uid",
+            ".write": "auth != null && auth.token.roomMember == true && newData.child('senderId').val() == auth.uid",
             ".validate": "newData.hasChildren(['senderId', 'senderName', 'kind', 'createdAt']) && newData.child('senderName').isString() && newData.child('senderName').val().length <= 30 && (newData.child('kind').val() == 'kangen' || newData.child('kind').val() == 'peluk' || newData.child('kind').val() == 'daisy') && newData.child('createdAt').isNumber()"
           }
         }
