@@ -247,7 +247,7 @@ try{const snap=await db.ref('littleUs/room/signals').limitToLast(20).once('value
   const warm=new THREE.PointLight('#ffb96b',18,8,2);warm.position.set(0,1.5,-2.3);scene.add(warm);
   const moon=new THREE.Mesh(new THREE.SphereGeometry(.55,32,24),new THREE.MeshStandardMaterial({color:'#fff0ca',emissive:'#ffce83',emissiveIntensity:1.6,roughness:.7}));moon.position.set(3.4,5.5,-5);scene.add(moon);
   const moonGlow=new THREE.Mesh(new THREE.SphereGeometry(.78,24,16),new THREE.MeshBasicMaterial({color:'#ffdba4',transparent:true,opacity:.08,depthWrite:false}));moonGlow.position.copy(moon.position);scene.add(moonGlow);
-  const ground=new THREE.Mesh(new THREE.PlaneGeometry(60,60,64,64),new THREE.MeshStandardMaterial({color:'#273329',roughness:1,metalness:0,map:grassTexture}));
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(60,60,64,64),new THREE.MeshStandardMaterial({color:'#273329',roughness:1,metalness:0,map:grassTexture,bumpMap:grassBump,bumpScale:.045}));
   ground.rotation.x=-Math.PI/2;ground.position.y=-.04;ground.receiveShadow=true;
   const pos=ground.geometry.attributes.position;for(let i=0;i<pos.count;i++){const x=pos.getX(i),y=pos.getY(i);pos.setZ(i,Math.sin(x*.38)*.12+Math.cos(y*.32)*.1);}ground.geometry.computeVertexNormals();scene.add(ground);
   function mat(color,roughness=.8,extra={}){return new THREE.MeshStandardMaterial({color,roughness,...extra})}
