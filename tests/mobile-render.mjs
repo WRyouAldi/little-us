@@ -29,6 +29,7 @@ try {
       viewport:{width:innerWidth,height:innerHeight,dpr:devicePixelRatio},
       canvas:{cssWidth:r.width,cssHeight:r.height,pixelWidth:canvas.width,pixelHeight:canvas.height},
       scene:{beacons:t.beaconCount,memories:t.memoryCount,fireflies:t.fireflyCount,renderCalls:t.renderer.info.render.calls,triangles:t.renderer.info.render.triangles,geometries:t.renderer.info.memory.geometries},
+      realism:t.realism,
       controls:[...document.querySelectorAll('.top button,.actions button')].map(b=>{const x=b.getBoundingClientRect();return {id:b.id||b.textContent.trim(),left:x.left,right:x.right,top:x.top,bottom:x.bottom,width:x.width,height:x.height,visible:x.width>0&&x.height>0&&x.left>=0&&x.right<=innerWidth&&x.top>=0&&x.bottom<=innerHeight}})
     }
   });
@@ -36,6 +37,7 @@ try {
   if(diagnostics.canvas.pixelWidth<393 || diagnostics.canvas.pixelHeight<873) throw new Error('Canvas render resolution smaller than Android-sized viewport: '+JSON.stringify(diagnostics.canvas));
   if(diagnostics.scene.beacons!==7 || diagnostics.scene.memories!==7) throw new Error('Expected seven interactive beacons and memories: '+JSON.stringify(diagnostics.scene));
   if(diagnostics.scene.renderCalls<1 || diagnostics.scene.triangles<100) throw new Error('3D scene appears not to be rendering: '+JSON.stringify(diagnostics.scene));
+  if(!diagnostics.realism || !diagnostics.realism.proceduralTextures || !diagnostics.realism.bumpMaps || !diagnostics.realism.organicPetals || !diagnostics.realism.trees || !diagnostics.realism.path || diagnostics.realism.petals<10) throw new Error('3D realism assets missing: '+JSON.stringify(diagnostics.realism));
   const hidden=diagnostics.controls.filter(x=>!x.visible);
   if(hidden.length) throw new Error('Mobile controls overflow/off-screen: '+JSON.stringify(hidden));
 
