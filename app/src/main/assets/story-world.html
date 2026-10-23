@@ -24,7 +24,41 @@ $('journey').onclick=()=>openMoment(0);$('prev').onclick=()=>openMoment(current-
 $('miss').onclick=()=>{$('hint').textContent='Kangen itu juga bagian dari dunia kalian. Sentuh cahaya untuk mengingat ♡';pulsate()};$('hug').onclick=()=>{$('hint').textContent='Satu pelukan kecil untuk hari ini ☁';pulsate()};$('daisy').onclick=()=>openMoment(3);
 const canvas=$('world'),scene=new THREE.Scene();scene.background=new THREE.Color('#120c1b');scene.fog=new THREE.FogExp2('#21162b',.027);
 const camera=new THREE.PerspectiveCamera(43,innerWidth/innerHeight,.1,100);camera.position.set(0,3.2,10.6);camera.lookAt(0,1,0);
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight,false);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
+// Quality is selected per device, then adjusted using real frame timing.
+function detectQualityProfile(){
+ const gl=document.createElement('canvas').getContext('webgl2')||document.createElement('canvas').getContext('webgl');
+ const maxTexture=gl?gl.getParameter(gl.MAX_TEXTURE_SIZE):2048;
+ const cores=navigator.hardwareConcurrency||4;
+ const memory=navigator.deviceMemory||4;
+ const mobile=/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
+ const score=(cores>=8?2:cores>=6?1:0)+(memory>=8?2:memory>=6?1:0)+(maxTexture>=8192?2:maxTexture>=4096?1:0);
+ const tier=score>=5?'ultra':score>=3?'high':score>=1?'balanced':'efficient';
+ const caps={ultra:2.5,high:2.25,balanced:1.8,efficient:1.35};
+ const maxPixels={ultra:6500000,high:4800000,balanced:3200000,efficient:1900000};
+ const maxDpr=Math.min(caps[tier],devicePixelRatio||1,Math.sqrt(maxPixels[tier]/Math.max(1,innerWidth*innerHeight)));
+ return {tier,maxDpr,cores,memory,maxTexture,mobile,adaptiveScale:1};
+}
+const quality=detectQualityProfile();
+const renderer=new THREE.WebGLRenderer({canvas,antialias:quality.tier!=='efficient',alpha:false,powerPreference:'high-performance',precision:quality.tier==='ultra'?'highp':'mediump'});
+renderer.setPixelRatio(quality.maxDpr);renderer.setSize(innerWidth,innerHeight,false);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
+renderer.capabilities.logarithmicDepthBuffer=false;
+function applyAdaptiveResolution(scale=quality.adaptiveScale){
+ quality.adaptiveScale=scale;
+ const ratio=Math.max(.75,quality.maxDpr*scale);
+ renderer.setPixelRatio(ratio);renderer.setSize(innerWidth,innerHeight,false);
+ quality.currentDpr=ratio;
+}
+applyAdaptiveResolution();
+let frameSamples=0,frameTotal=0,frameLast=performance.now(),qualityCheckAt=frameLast;
+function samplePerformance(now){
+ const dt=now-frameLast;frameLast=now;
+ if(dt>0&&dt<250){frameSamples++;frameTotal+=dt}
+ if(now-qualityCheckAt<2500||frameSamples<30)return;
+ const avg=frameTotal/frameSamples;
+ if(avg>24&&quality.adaptiveScale>.7)applyAdaptiveResolution(Math.max(.7,quality.adaptiveScale-.15));
+ else if(avg<18&&quality.adaptiveScale<1)applyAdaptiveResolution(Math.min(1,quality.adaptiveScale+.05));
+ frameSamples=0;frameTotal=0;qualityCheckAt=now;
+}
 scene.add(new THREE.HemisphereLight('#c6c2ed','#211629',2));const moonLight=new THREE.DirectionalLight('#c8d3ff',1.5);moonLight.position.set(-4,8,5);moonLight.castShadow=true;scene.add(moonLight);const warm=new THREE.PointLight('#ffb96b',17,9,2);warm.position.set(0,1.5,-2.2);scene.add(warm);
 function mat(color,roughness=.8,extra={}){return new THREE.MeshStandardMaterial({color,roughness,...extra})}function organicPetalGeometry(){
  const g=new THREE.BufferGeometry(),positions=[],uvs=[],indices=[];const rows=20,cols=8;
@@ -86,7 +120,7 @@ const starPos=[];for(let i=0;i<180;i++)starPos.push((Math.random()-.5)*22,2+Math
 let tx=0,ty=0,cx=0,cy=1.05;canvas.addEventListener('pointermove',e=>{const r=canvas.getBoundingClientRect();tx=((e.clientX-r.left)/r.width-.5)*.6;ty=((e.clientY-r.top)/r.height-.5)*.22},{passive:true});
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();canvas.addEventListener('click',e=>{if($('memory').classList.contains('show'))return;const r=canvas.getBoundingClientRect();ndc.x=((e.clientX-r.left)/r.width)*2-1;ndc.y=-((e.clientY-r.top)/r.height)*2+1;ray.setFromCamera(ndc,camera);const hit=ray.intersectObjects([...beacons.flatMap(b=>[b.c,b.h]),...flower.children],true)[0];if(hit){let o=hit.object;while(o&&!Number.isInteger(o.userData.memoryIndex)&&o.parent)o=o.parent;if(o&&Number.isInteger(o.userData.memoryIndex))openMoment(o.userData.memoryIndex);else openMoment(3)}},{passive:true});
 function pulsate(){flower.scale.setScalar(1.12);setTimeout(()=>flower.scale.setScalar(1),420)}
-const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();cx+=(tx-cx)*.025;cy+=(1.05+ty-cy)*.025;camera.position.x=cx;camera.lookAt(cx*.3,cy,0);flower.rotation.z=Math.sin(t*.7)*.025;flower.position.y=1.18+Math.sin(t*.85)*.045;glow.material.opacity=.05+Math.sin(t*.45)*.02;beacons.forEach(b=>{b.g.position.y=b.baseY+Math.sin(t*1.2+b.phase)*.045;b.c.scale.setScalar(1+Math.sin(t*2+b.phase)*.12);b.h.material.opacity=.08+(Math.sin(t*1.4+b.phase)+1)*.04});fireflies.forEach(f=>{f.o.position.y=f.y+Math.sin(t*1.2+f.phase)*.16;f.o.position.x=f.x+Math.sin(t*.35+f.phase)*.08});renderer.render(scene,camera)}animate();
-window.__LITTLE_US_TEST__={renderer,scene,camera,beaconCount:beacons.length,memoryCount:moments.length,flower,fireflyCount:fireflies.length,realism:{proceduralTextures:typeof proceduralTexture==='function',bumpMaps:typeof bumpTexture==='function',organicPetals:typeof organicPetalGeometry==='function',trees:!!barkMat,path:!!pathGroup,petals:petals.length}};
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.position.z=innerWidth<500?11.8:9.6;camera.position.y=innerWidth<500?3.65:3.2;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight,false)});
+const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);samplePerformance(performance.now());const t=clock.getElapsedTime();cx+=(tx-cx)*.025;cy+=(1.05+ty-cy)*.025;camera.position.x=cx;camera.lookAt(cx*.3,cy,0);flower.rotation.z=Math.sin(t*.7)*.025;flower.position.y=1.18+Math.sin(t*.85)*.045;glow.material.opacity=.05+Math.sin(t*.45)*.02;beacons.forEach(b=>{b.g.position.y=b.baseY+Math.sin(t*1.2+b.phase)*.045;b.c.scale.setScalar(1+Math.sin(t*2+b.phase)*.12);b.h.material.opacity=.08+(Math.sin(t*1.4+b.phase)+1)*.04});fireflies.forEach(f=>{f.o.position.y=f.y+Math.sin(t*1.2+f.phase)*.16;f.o.position.x=f.x+Math.sin(t*.35+f.phase)*.08});renderer.render(scene,camera)}animate();
+window.__LITTLE_US_TEST__={renderer,scene,camera,quality,beaconCount:beacons.length,memoryCount:moments.length,flower,fireflyCount:fireflies.length,realism:{proceduralTextures:typeof proceduralTexture==='function',bumpMaps:typeof bumpTexture==='function',organicPetals:typeof organicPetalGeometry==='function',trees:!!barkMat,path:!!pathGroup,petals:petals.length}};
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.position.z=innerWidth<500?11.8:9.6;camera.position.y=innerWidth<500?3.65:3.2;camera.updateProjectionMatrix();quality.maxDpr=Math.min(({ultra:2.5,high:2.25,balanced:1.8,efficient:1.35})[quality.tier],devicePixelRatio||1,Math.sqrt(({ultra:6500000,high:4800000,balanced:3200000,efficient:1900000})[quality.tier]/Math.max(1,innerWidth*innerHeight)));applyAdaptiveResolution(quality.adaptiveScale)});
 </script></body></html>
