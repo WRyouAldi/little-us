@@ -1,4 +1,4 @@
-name: Build Little Us APK
+name: Build Little Us APK (debug)
 on:
   workflow_dispatch:
   push:
