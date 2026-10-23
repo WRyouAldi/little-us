@@ -31,6 +31,7 @@ try {
       scene:{beacons:t.beaconCount,memories:t.memoryCount,fireflies:t.fireflyCount,renderCalls:t.renderer.info.render.calls,triangles:t.renderer.info.render.triangles,geometries:t.renderer.info.memory.geometries},
       quality:{tier:t.quality.tier,maxDpr:t.quality.maxDpr,currentDpr:t.quality.currentDpr,maxTexture:t.quality.maxTexture,cores:t.quality.cores,memory:t.quality.memory,powerPreference:t.renderer.getContext().getContextAttributes()?.powerPreference},
       realism:t.realism,
+      character:(()=>{const box=new t.THREE.Box3().setFromObject(t.characterRig,true);const ground=t.scene.getObjectByName('walkable-ground');const ray=new t.THREE.Raycaster(new t.THREE.Vector3(t.avatar.position.x,5,t.avatar.position.z),new t.THREE.Vector3(0,-1,0));const hit=ground?ray.intersectObject(ground,false)[0]:null;return {height:box.max.y-box.min.y,minY:box.min.y,maxY:box.max.y,groundY:hit?.point.y??null,footGap:hit?box.min.y-hit.point.y:null,rigOffset:t.characterRig.position.y,parts:{arms:t.characterParts.arms.length,legs:t.characterParts.legs.length},source:t.assetStatus.characterSource,status:t.assetStatus.character}})(),
       controls:[...document.querySelectorAll('.top button,.actions button')].map(b=>{const x=b.getBoundingClientRect();return {id:b.id||b.textContent.trim(),left:x.left,right:x.right,top:x.top,bottom:x.bottom,width:x.width,height:x.height,visible:x.width>0&&x.height>0&&x.left>=0&&x.right<=innerWidth&&x.top>=0&&x.bottom<=innerHeight}})
     }
   });
@@ -39,6 +40,9 @@ try {
   if(!diagnostics.quality || diagnostics.quality.currentDpr<=0 || diagnostics.quality.currentDpr>diagnostics.quality.maxDpr+0.01) throw new Error('Device-adaptive quality profile invalid: '+JSON.stringify(diagnostics.quality));
   if(!['ultra','high','balanced','efficient'].includes(diagnostics.quality.tier)) throw new Error('Unknown device quality tier: '+JSON.stringify(diagnostics.quality));
   if(diagnostics.scene.beacons!==7 || diagnostics.scene.memories!==7) throw new Error('Expected seven interactive beacons and memories: '+JSON.stringify(diagnostics.scene));
+  if(!diagnostics.character || diagnostics.character.parts.arms!==2 || diagnostics.character.parts.legs!==2) throw new Error('Photo-inspired 3D character rig is incomplete: '+JSON.stringify(diagnostics.character));
+  if(diagnostics.character.height<1.3 || diagnostics.character.height>2.1) throw new Error('Character proportions outside expected human scale: '+JSON.stringify(diagnostics.character));
+  if(diagnostics.character.groundY===null || Math.abs(diagnostics.character.footGap)>.18) throw new Error('Character shoes are not close to the walkable ground: '+JSON.stringify(diagnostics.character));
   if(diagnostics.scene.renderCalls<1 || diagnostics.scene.triangles<100) throw new Error('3D scene appears not to be rendering: '+JSON.stringify(diagnostics.scene));
   if(!diagnostics.realism || !diagnostics.realism.proceduralTextures || !diagnostics.realism.bumpMaps || !diagnostics.realism.organicPetals || !diagnostics.realism.trees || !diagnostics.realism.path || diagnostics.realism.petals<10) throw new Error('3D realism assets missing: '+JSON.stringify(diagnostics.realism));
   const hidden=diagnostics.controls.filter(x=>!x.visible);
