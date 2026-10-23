@@ -1,5 +1,9 @@
 <!doctype html>
 <html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#160d20"><title>Little Us — The World of Your Story</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
 <style>
 :root{color-scheme:dark;--rose:#d9b8c7;--blush:#f3e6e8;--gold:#ead7c2;--burgundy:#5c4363;--maroon:#2b1f2d;--ink:#171321;--mauve:#a78b98;--cream:#f3e6e8;--dawn:#8fb1c6;--glow:#f7c78e}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#171321;color:var(--cream);font-family:system-ui,-apple-system,sans-serif}#world{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}.top{position:fixed;z-index:2;top:calc(20px + env(safe-area-inset-top));left:20px;right:20px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}.brand{font-size:11px;font-weight:800;letter-spacing:.23em;text-shadow:0 2px 16px #000}.brand small{display:block;margin-top:4px;font-weight:400;letter-spacing:.08em;opacity:.75}.chip{pointer-events:auto;border:1px solid #fff3;background:linear-gradient(135deg,#5c4363dd,#2b1f2ddd);color:var(--cream);border-radius:99px;padding:10px 14px;backdrop-filter:blur(16px)}.bottom{position:fixed;z-index:2;bottom:calc(22px + env(safe-area-inset-bottom));left:18px;right:18px;text-align:center;pointer-events:none}.hint{font-size:12px;line-height:1.5;color:var(--blush);text-shadow:0 2px 12px #000;max-width:320px;margin:0 auto 12px;padding:8px 12px;border:1px solid #ead7c244;border-radius:14px;background:#17132188;backdrop-filter:blur(8px)}.actions{display:flex;justify-content:center;gap:9px;pointer-events:auto}.actions button{flex:1;max-width:150px;border:1px solid #fff3;background:linear-gradient(145deg,#5c4363dd,#2b1f2dee);color:var(--cream);border-radius:18px;padding:12px 8px;backdrop-filter:blur(16px);font-size:12px}.actions b{display:block;font-size:20px;color:var(--rose);margin-bottom:3px}.chip,.actions button,.row button,.close{transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}.chip:active,.actions button:active,.row button:active,.close:active{transform:scale(.97)}.chip:focus-visible,.actions button:focus-visible,.row button:focus-visible,.close:focus-visible{outline:2px solid var(--gold);outline-offset:3px}.actions button:hover,.chip:hover{border-color:var(--gold);box-shadow:0 8px 28px #e8a2b522}.walk-tip{position:fixed;z-index:2;left:14px;bottom:calc(190px + env(safe-area-inset-bottom));max-width:170px;padding:9px 12px;border:1px solid #ead7c266;border-radius:15px;background:#2b1f2dcc;color:var(--cream);font-size:11px;line-height:1.4;backdrop-filter:blur(12px);pointer-events:none}.walk-tip span{color:var(--gold)}.overlay{position:fixed;z-index:5;inset:0;background:linear-gradient(180deg,transparent 0%,#0b071244 45%,#0b071288 100%);backdrop-filter:none;display:none;align-items:flex-end;justify-content:center;padding:10px 12px calc(10px + env(safe-area-inset-bottom))}.overlay.show{display:flex}.panel{width:min(100%,440px);max-height:52dvh;overflow:auto;border:1px solid #ead7c288;border-radius:27px;background:linear-gradient(145deg,#5c4363f2 0%,#2b1f2df5 58%,#171321f8 100%);padding:23px;box-shadow:0 22px 80px #0008}.kicker{font-size:9px;letter-spacing:.24em;color:var(--gold);margin-bottom:12px}.date{font-size:11px;letter-spacing:.14em;color:var(--gold);margin:0 0 14px}.panel h1{font-size:25px;line-height:1.15;margin:0 0 10px}.panel p{font-size:14px;line-height:1.65;color:var(--blush)}.source{font-size:11px;line-height:1.6;color:#f0ccd7;border-left:2px solid var(--gold);padding-left:10px;margin:16px 0}.row{display:flex;gap:8px}.row button,.close{flex:1;border:0;border-radius:14px;padding:13px;background:linear-gradient(135deg,#f7dce3,#e8c39e);color:#2d080e;font-weight:700}.row .secondary,.close{background:#f7dce31a;color:var(--cream);border:1px solid #f7dce344}.close{width:100%;margin-top:8px}.counter{font-size:10px;letter-spacing:.15em;color:#e9cbd8;margin-bottom:12px}@media(min-width:700px){.bottom{bottom:24px}.overlay{align-items:flex-end}.panel{max-height:48dvh}}
 #world-error{position:fixed;z-index:20;left:16px;right:16px;top:74px;padding:12px 14px;border:1px solid #f2a6a6;border-radius:14px;background:#26151df2;color:#ffe6e6;font:12px/1.5 system-ui,sans-serif;white-space:pre-wrap;overflow-wrap:anywhere;display:none;max-height:32vh;overflow:auto}#world-error strong{display:block;margin-bottom:4px;font-size:13px}#world-error code{color:#ffd6a0}#world-error button{margin-top:8px;padding:7px 12px;border-radius:8px;border:1px solid #ffffff44;background:#ffffff12;color:#fff}
@@ -33,7 +37,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/loaders/GLTFLoader.js';
 import { mountDesiCharacter } from './LU-DESI-01-webview-integration.js';
-const moments=[
+let moments=[
 {date:'07 APRIL 2025',title:'Hal kecil yang dijaga',body:'Perhatian muncul lewat hal sederhana: memastikan sudah makan, menyemangati pekerjaan, mengingatkan istirahat, dan memastikan perjalanan aman.',source:'Jejak sumber: percakapan 7 April 2025 tentang makanan, rutinitas kerja, kelelahan, dan istirahat.'},
 {date:'08 APRIL 2025',title:'Candaan yang jadi milik kita',body:'Obrolan ringan berkembang menjadi lelucon berulang tentang foto kaki, foto rambut, dan mencari angin bersama. Keakraban terlihat dari cara kalian meneruskan candaan itu.',source:'Jejak sumber: percakapan 8 April 2025 tentang foto, sandal, dan rencana mencari angin bersama.'},
 {date:'27 NOVEMBER 2025',title:'Tanggal yang kita tandai',body:'Tanggal ini menjadi penanda hubungan di Little Us. Percakapan sebelum tanggal ini tetap diperlakukan sebagai bagian perjalanan menuju penanda tersebut.',source:'Jejak sumber: tanggal hubungan yang ditetapkan pada proyek Little Us; bukan kutipan WhatsApp.'},
@@ -232,6 +236,74 @@ for(const x of [-.82,.82]){addMesh(new THREE.BoxGeometry(.035,.58,.045),trim,[x,
 
 const beaconMat=mat('#f3e6e8',.25,{emissive:'#f7c78e',emissiveIntensity:2.1});const beaconGlow=new THREE.MeshBasicMaterial({color:'#f7c78e',transparent:true,opacity:.18,depthWrite:false});const beacons=[];const positions=[[-2.65,.45,.25],[-2.05,.58,-1.2],[-.65,.5,-2],[1.55,.68,-.55],[2.45,.55,-2],[1.85,.78,-3.4],[-1.8,.63,-3.4]];
 positions.forEach((p,i)=>{const g=new THREE.Group();g.position.set(...p);g.userData.memoryIndex=i;const c=new THREE.Mesh(new THREE.SphereGeometry(.075,14,10),beaconMat);c.userData.memoryIndex=i;g.add(c);const h=new THREE.Mesh(new THREE.SphereGeometry(.2,14,10),beaconGlow);h.userData.memoryIndex=i;g.add(h);scene.add(g);beacons.push({g,c,h,phase:i*.8,baseY:p[1]})});
+
+ // Map source: Firebase Realtime Database. The seven local memories are only an offline fallback.
+ const mapDataState={source:'local-fallback',status:'connecting',count:moments.length,path:'littleUs/room/memories'};
+ window.__LU_MAP_DATA__=mapDataState;
+ const firebaseConfig={apiKey:"AIzaSyCUZM4nqJIPhErJSdqbc_lOXQ7ei3qBH18",authDomain:"little-us-723b7.firebaseapp.com",databaseURL:"https://little-us-723b7-default-rtdb.firebaseio.com",projectId:"little-us-723b7",storageBucket:"little-us-723b7.firebasestorage.app",messagingSenderId:"660291539081",appId:"1:660291539081:web:5727392a0c3bf6bb5c3658"};
+ let mapDb=null;
+ function normalizeDatabaseMemories(raw){
+   const rows=Object.entries(raw||{}).map(([id,v])=>({id,...(v||{})})).filter(v=>v.title||v.body||v.date);
+   rows.sort((a,b)=>(Number(a.order??999999)-Number(b.order??999999))||String(a.date||'').localeCompare(String(b.date||'')));
+   return rows.map((v,i)=>({
+     id:v.id,date:String(v.date||v.createdAt||'Kenangan '+(i+1)),
+     title:String(v.title||'Kenangan Little Us'),
+     body:String(v.body||v.description||'Kenangan tersimpan di Little Us.'),
+     source:String(v.source||v.sourceLabel||'Sumber: database Little Us.'),
+     x:Number.isFinite(Number(v.x))?Number(v.x):undefined,
+     y:Number.isFinite(Number(v.y))?Number(v.y):undefined,
+     z:Number.isFinite(Number(v.z))?Number(v.z):undefined,
+     order:Number(v.order??i)
+   }));
+ }
+ function mapPositionsFor(rows){
+   const fallback=[[-2.65,.45,.25],[-2.05,.58,-1.2],[-.65,.5,-2],[1.55,.68,-.55],[2.45,.55,-2],[1.85,.78,-3.4],[-1.8,.63,-3.4]];
+   return rows.map((row,i)=>{
+     if(Number.isFinite(row.x)&&Number.isFinite(row.z))return [row.x,Number.isFinite(row.y)?row.y:.55,row.z];
+     if(i<fallback.length)return fallback[i];
+     const a=(i/fallback.length)*Math.PI*2,r=2.8+(i%3)*.45;
+     return [Math.cos(a)*r,.5+(i%3)*.12,-2.1+Math.sin(a)*r];
+   });
+ }
+ function rebuildMemoryBeacons(rows){
+   for(const b of beacons){scene.remove(b.g);b.g.traverse(o=>{if(o.geometry)o.geometry.dispose()})}
+   beacons.length=0;
+   const nextPositions=mapPositionsFor(rows);
+   nextPositions.forEach((p,i)=>{
+     const g=new THREE.Group();g.position.set(...p);g.userData.memoryIndex=i;g.userData.memoryId=rows[i]?.id||String(i);
+     const c=new THREE.Mesh(new THREE.SphereGeometry(.075,14,10),beaconMat);c.userData.memoryIndex=i;g.add(c);
+     const h=new THREE.Mesh(new THREE.SphereGeometry(.2,14,10),beaconGlow);h.userData.memoryIndex=i;g.add(h);
+     scene.add(g);beacons.push({g,c,h,phase:i*.8,baseY:p[1]});
+   });
+   mapDataState.count=rows.length;
+   window.__LU_WORLD_TEST__={...(window.__LU_WORLD_TEST__||{}),beaconCount:beacons.length,memoryCount:moments.length};
+ }
+ function applyDatabaseMemories(raw){
+   const rows=normalizeDatabaseMemories(raw);
+   if(!rows.length){mapDataState.source='local-fallback';mapDataState.status='empty';mapDataState.count=moments.length;return}
+   moments=rows;
+   rebuildMemoryBeacons(rows);
+   mapDataState.source='firebase';mapDataState.status='connected';mapDataState.count=rows.length;
+   $('hint').textContent='Peta kenangan tersinkron · '+rows.length+' titik cahaya';
+   if(current>=moments.length)current=0;
+ }
+ function connectMemoryDatabase(){
+   try{
+     const app=firebase.apps.length?firebase.app():firebase.initializeApp(firebaseConfig);
+     const auth=firebase.auth(),db=app.database();
+     const listen=()=>db.ref('littleUs/room/memories').on('value',snap=>applyDatabaseMemories(snap.val()),err=>{
+       mapDataState.status='permission-denied';mapDataState.error=String(err?.message||err);
+       console.warn('[Little Us] Database map read failed; local fallback retained.',err);
+       $('hint').textContent='Peta lokal aktif · database belum dapat dibaca';
+     });
+     if(auth.currentUser)listen();else auth.signInAnonymously().then(listen).catch(err=>{
+       mapDataState.status='auth-error';mapDataState.error=String(err?.message||err);
+       console.warn('[Little Us] Anonymous auth failed; local fallback retained.',err);
+     });
+   }catch(err){mapDataState.status='firebase-unavailable';mapDataState.error=String(err?.message||err);console.warn('[Little Us] Firebase unavailable; local fallback retained.',err)}
+ }
+ connectMemoryDatabase();
+ 
 const fireflies=[];const flymat=new THREE.MeshBasicMaterial({color:'#f7c78e'});for(let i=0;i<36;i++){const o=addMesh(new THREE.SphereGeometry(.018+(i%3)*.006,8,6),flymat,[(Math.random()-.5)*11,.3+Math.random()*2.2,-1-Math.random()*8]);fireflies.push({o,phase:Math.random()*6.28,y:o.position.y,x:o.position.x})}
 const starPos=[];for(let i=0;i<180;i++)starPos.push((Math.random()-.5)*22,2+Math.random()*9,-7-Math.random()*12);const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.Float32BufferAttribute(starPos,3));scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:'#dcd9f4',size:.035,transparent:true,opacity:.7})));
 let tx=0,ty=0,cx=0,cy=1.05,dragging=false,lastX=0,lastY=0;canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture?.(e.pointerId)},{passive:true});canvas.addEventListener('pointerup',()=>dragging=false,{passive:true});canvas.addEventListener('pointercancel',()=>dragging=false,{passive:true});canvas.addEventListener('pointermove',e=>{const r=canvas.getBoundingClientRect();tx=((e.clientX-r.left)/r.width-.5)*.6;ty=((e.clientY-r.top)/r.height-.5)*.22;if(dragging){cx=Math.max(-2.2,Math.min(2.2,cx+(e.clientX-lastX)*-.008));cy=Math.max(.65,Math.min(1.8,cy+(e.clientY-lastY)*.004));lastX=e.clientX;lastY=e.clientY}},{passive:true});
@@ -256,6 +328,6 @@ const desiCharacterLoad=mountDesiCharacter({
   return null;
 });
 const clock=new THREE.Clock();let lastMoveTime=performance.now();function dtSafe(){const now=performance.now(),dt=Math.min(.05,(now-lastMoveTime)/1000);lastMoveTime=now;return dt}function animate(){requestAnimationFrame(animate);samplePerformance(performance.now());const delta=dtSafe(),t=clock.getElapsedTime();let isWalking=false;if(walkTarget){const moveDt=delta,dx=walkTarget.x-avatar.position.x,dz=walkTarget.z-avatar.position.z,dist=Math.hypot(dx,dz);if(dist>.08){const step=Math.min(dist,moveDt*1.15);avatar.position.x+=dx/dist*step;avatar.position.z+=dz/dist*step;avatar.rotation.y=Math.atan2(dx,dz);legs[0].rotation.x=Math.sin(t*10)*.45;legs[1].rotation.x=-Math.sin(t*10)*.45;characterArms.forEach(a=>a.rotation.x=isWalking?Math.sin(t*10+Math.PI)*.14:Math.sin(t*1.1+a.userData.side)*.018);characterTorso.position.y=Math.sin(t*1.6)*.012;isWalking=true}else{walkTarget=null;legs.forEach(l=>l.rotation.x=0);$('walkTip').innerHTML='Kamu sudah sampai.<br><span>Pilih cahaya kenangan</span>'}}if(desiCharacter){desiCharacter.setMode(isWalking?'walk':'idle');desiCharacter.update(delta)}if(characterMixer){characterMixer.update(delta);if(walkAction&&idleAction){if(isWalking&&!walkAction.enabled){walkAction.enabled=true;walkAction.reset().play();idleAction.fadeOut(.2);walkAction.fadeIn(.2)}else if(!isWalking&&walkAction.enabled){walkAction.fadeOut(.2);walkAction.enabled=false;idleAction.reset().fadeIn(.2).play()}}}if(!dragging){cx+=(tx-cx)*.025;cy+=(1.05+ty-cy)*.025}camera.position.x=cx+avatar.position.x*.22;camera.lookAt(cx*.3+avatar.position.x*.32,cy,0);const wp=waterGeo.attributes.position;for(let i=0;i<wp.count;i++){const x=lakeBase[i*3],z=lakeBase[i*3+2];wp.setY(i,Math.sin(x*.8+t*.75)*.018+Math.cos(z*1.1+t*.55)*.014)}wp.needsUpdate=true;waterGeo.computeVertexNormals();flower.rotation.z=Math.sin(t*.7)*.025;flower.position.y=1.18+Math.sin(t*.85)*.045;glow.material.opacity=.05+Math.sin(t*.45)*.02;beacons.forEach(b=>{b.g.position.y=b.baseY+Math.sin(t*1.2+b.phase)*.045;b.c.scale.setScalar(1+Math.sin(t*2+b.phase)*.12);b.h.material.opacity=.08+(Math.sin(t*1.4+b.phase)+1)*.04});fireflies.forEach(f=>{f.o.position.y=f.y+Math.sin(t*1.2+f.phase)*.16;f.o.position.x=f.x+Math.sin(t*.35+f.phase)*.08});renderer.render(scene,camera)}animate();
-window.__LITTLE_US_TEST__={THREE,renderer,scene,camera,quality,beaconCount:beacons.length,memoryCount:moments.length,flower,avatar,characterRig,desiCharacterLoad,characterParts:{torso:characterTorso,arms:characterArms,legs:characterLegs},assetStatus,walkable:!!ground,fireflyCount:fireflies.length,realism:{proceduralTextures:typeof proceduralTexture==='function',bumpMaps:typeof bumpTexture==='function',organicPetals:typeof organicPetalGeometry==='function',trees:!!barkMat,path:!!pathGroup,petals:petals.length,animatedLake:!!lake},lighting:{aces:renderer.toneMapping===THREE.ACESFilmicToneMapping,softShadows:renderer.shadowMap.enabled,hemisphere:true},environment:{daisy:'pending',trees:'pending',assetBase:environmentAssetBase}};
+window.__LITTLE_US_TEST__={THREE,renderer,scene,camera,quality,beaconCount:beacons.length,memoryCount:moments.length,mapDataState,flower,avatar,characterRig,desiCharacterLoad,characterParts:{torso:characterTorso,arms:characterArms,legs:characterLegs},assetStatus,walkable:!!ground,fireflyCount:fireflies.length,realism:{proceduralTextures:typeof proceduralTexture==='function',bumpMaps:typeof bumpTexture==='function',organicPetals:typeof organicPetalGeometry==='function',trees:!!barkMat,path:!!pathGroup,petals:petals.length,animatedLake:!!lake},lighting:{aces:renderer.toneMapping===THREE.ACESFilmicToneMapping,softShadows:renderer.shadowMap.enabled,hemisphere:true},environment:{daisy:'pending',trees:'pending',assetBase:environmentAssetBase}};
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.position.z=innerWidth<500?11.8:9.6;camera.position.y=innerWidth<500?3.65:3.2;camera.updateProjectionMatrix();quality.maxDpr=Math.min(({ultra:2.5,high:2.25,balanced:1.8,efficient:1.35})[quality.tier],devicePixelRatio||1,Math.sqrt(({ultra:6500000,high:4800000,balanced:3200000,efficient:1900000})[quality.tier]/Math.max(1,innerWidth*innerHeight)));applyAdaptiveResolution(quality.adaptiveScale)});
 </script></body></html>
