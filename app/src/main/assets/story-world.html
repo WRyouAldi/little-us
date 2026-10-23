@@ -2,8 +2,30 @@
 <html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#160d20"><title>Little Us — The World of Your Story</title>
 <style>
 :root{color-scheme:dark;--rose:#d9b8c7;--blush:#f3e6e8;--gold:#ead7c2;--burgundy:#5c4363;--maroon:#2b1f2d;--ink:#171321;--mauve:#a78b98;--cream:#f3e6e8;--dawn:#8fb1c6;--glow:#f7c78e}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#171321;color:var(--cream);font-family:system-ui,-apple-system,sans-serif}#world{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}.top{position:fixed;z-index:2;top:calc(20px + env(safe-area-inset-top));left:20px;right:20px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}.brand{font-size:11px;font-weight:800;letter-spacing:.23em;text-shadow:0 2px 16px #000}.brand small{display:block;margin-top:4px;font-weight:400;letter-spacing:.08em;opacity:.75}.chip{pointer-events:auto;border:1px solid #fff3;background:linear-gradient(135deg,#5c4363dd,#2b1f2ddd);color:var(--cream);border-radius:99px;padding:10px 14px;backdrop-filter:blur(16px)}.bottom{position:fixed;z-index:2;bottom:calc(22px + env(safe-area-inset-bottom));left:18px;right:18px;text-align:center;pointer-events:none}.hint{font-size:12px;line-height:1.5;color:var(--blush);text-shadow:0 2px 12px #000;max-width:320px;margin:0 auto 12px;padding:8px 12px;border:1px solid #ead7c244;border-radius:14px;background:#17132188;backdrop-filter:blur(8px)}.actions{display:flex;justify-content:center;gap:9px;pointer-events:auto}.actions button{flex:1;max-width:150px;border:1px solid #fff3;background:linear-gradient(145deg,#5c4363dd,#2b1f2dee);color:var(--cream);border-radius:18px;padding:12px 8px;backdrop-filter:blur(16px);font-size:12px}.actions b{display:block;font-size:20px;color:var(--rose);margin-bottom:3px}.chip,.actions button,.row button,.close{transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}.chip:active,.actions button:active,.row button:active,.close:active{transform:scale(.97)}.chip:focus-visible,.actions button:focus-visible,.row button:focus-visible,.close:focus-visible{outline:2px solid var(--gold);outline-offset:3px}.actions button:hover,.chip:hover{border-color:var(--gold);box-shadow:0 8px 28px #e8a2b522}.walk-tip{position:fixed;z-index:2;left:14px;bottom:calc(190px + env(safe-area-inset-bottom));max-width:170px;padding:9px 12px;border:1px solid #ead7c266;border-radius:15px;background:#2b1f2dcc;color:var(--cream);font-size:11px;line-height:1.4;backdrop-filter:blur(12px);pointer-events:none}.walk-tip span{color:var(--gold)}.overlay{position:fixed;z-index:5;inset:0;background:linear-gradient(180deg,transparent 0%,#0b071244 45%,#0b071288 100%);backdrop-filter:none;display:none;align-items:flex-end;justify-content:center;padding:10px 12px calc(10px + env(safe-area-inset-bottom))}.overlay.show{display:flex}.panel{width:min(100%,440px);max-height:52dvh;overflow:auto;border:1px solid #ead7c288;border-radius:27px;background:linear-gradient(145deg,#5c4363f2 0%,#2b1f2df5 58%,#171321f8 100%);padding:23px;box-shadow:0 22px 80px #0008}.kicker{font-size:9px;letter-spacing:.24em;color:var(--gold);margin-bottom:12px}.date{font-size:11px;letter-spacing:.14em;color:var(--gold);margin:0 0 14px}.panel h1{font-size:25px;line-height:1.15;margin:0 0 10px}.panel p{font-size:14px;line-height:1.65;color:var(--blush)}.source{font-size:11px;line-height:1.6;color:#f0ccd7;border-left:2px solid var(--gold);padding-left:10px;margin:16px 0}.row{display:flex;gap:8px}.row button,.close{flex:1;border:0;border-radius:14px;padding:13px;background:linear-gradient(135deg,#f7dce3,#e8c39e);color:#2d080e;font-weight:700}.row .secondary,.close{background:#f7dce31a;color:var(--cream);border:1px solid #f7dce344}.close{width:100%;margin-top:8px}.counter{font-size:10px;letter-spacing:.15em;color:#e9cbd8;margin-bottom:12px}@media(min-width:700px){.bottom{bottom:24px}.overlay{align-items:flex-end}.panel{max-height:48dvh}}
+#world-error{position:fixed;z-index:20;left:16px;right:16px;top:74px;padding:12px 14px;border:1px solid #f2a6a6;border-radius:14px;background:#26151df2;color:#ffe6e6;font:12px/1.5 system-ui,sans-serif;white-space:pre-wrap;overflow-wrap:anywhere;display:none;max-height:32vh;overflow:auto}#world-error strong{display:block;margin-bottom:4px;font-size:13px}#world-error code{color:#ffd6a0}#world-error button{margin-top:8px;padding:7px 12px;border-radius:8px;border:1px solid #ffffff44;background:#ffffff12;color:#fff}
 </style></head><body>
 <canvas id="world" aria-label="Taman 3D Little Us. Sentuh cahaya untuk membuka kenangan berdasarkan chat asli."></canvas>
+ <aside id="world-error" role="alert" aria-live="assertive"><strong>Dunia 3D belum berhasil dimuat</strong><span id="world-error-detail">Memeriksa renderer…</span><br><button type="button" id="world-error-retry">Muat ulang dunia</button></aside>
+ <script>
+ (function(){
+   function report(title,detail){
+     var box=document.getElementById('world-error'),text=document.getElementById('world-error-detail');
+     if(!box||!text)return;
+     box.style.display='block';
+     text.textContent=title+(detail?' — '+String(detail).slice(0,420):'');
+   }
+   window.__LU_WORLD_ERROR__=report;
+   window.addEventListener('error',function(e){
+     if(e&&e.message)report('Kesalahan JavaScript',e.message+(e.filename?' ('+e.filename.split('/').pop()+':'+e.lineno+')':''));
+     else if(e&&e.target&&(e.target.src||e.target.href))report('Aset gagal dimuat',(e.target.src||e.target.href));
+   },true);
+   window.addEventListener('unhandledrejection',function(e){report('Proses 3D gagal',e.reason&&e.reason.message?e.reason.message:e.reason);});
+   document.addEventListener('DOMContentLoaded',function(){
+     var btn=document.getElementById('world-error-retry');
+     if(btn)btn.addEventListener('click',function(){location.reload();});
+   });
+ })();
+ </script>
 <header class="top"><div class="brand">LITTLE US<small>A WORLD MADE OF US</small></div><button class="chip" id="journey">Perjalanan ♡</button></header>
 <div class="walk-tip" id="walkTip">Ketuk tanah untuk <span>berjalan</span><br>Geser layar untuk melihat sekitar</div><div class="bottom"><div class="hint" id="hint">Temukan titik cahaya di sepanjang jalan setapak.</div><div class="actions"><button id="miss"><b>♡</b>Kangen</button><button id="hug"><b>☁</b>Peluk</button><button id="daisy"><b>🌼</b>Daisy</button></div></div>
 <div class="overlay" id="memory"><article class="panel"><div class="kicker">LITTLE US · MEMORY WORLD</div><div class="counter" id="counter"></div><div class="date" id="date"></div><h1 id="title"></h1><p id="body"></p><div class="source" id="source"></div><div class="row"><button class="secondary" id="prev">← Sebelumnya</button><button id="next">Berikutnya →</button></div><button class="close" id="close">Kembali ke dunia</button></article></div>
@@ -41,7 +63,13 @@ function detectQualityProfile(){
  return {tier,maxDpr,cores,memory,maxTexture,mobile,adaptiveScale:1};
 }
 const quality=detectQualityProfile();
-const renderer=new THREE.WebGLRenderer({canvas,antialias:quality.tier!=='efficient',alpha:false,powerPreference:'high-performance',precision:quality.tier==='ultra'?'highp':'mediump'});
+let renderer;
+ try {
+   renderer=new THREE.WebGLRenderer({canvas,antialias:quality.tier!=='efficient',alpha:false,powerPreference:'high-performance',precision:quality.tier==='ultra'?'highp':'mediump'});
+ } catch(error) {
+   if(window.__LU_WORLD_ERROR__)window.__LU_WORLD_ERROR__('WebGL tidak tersedia',error&&error.message||error);
+   throw error;
+ }
 renderer.setPixelRatio(quality.maxDpr);renderer.setSize(innerWidth,innerHeight,false);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.04;renderer.useLegacyLights=false;
 renderer.capabilities.logarithmicDepthBuffer=false;
 function applyAdaptiveResolution(scale=quality.adaptiveScale){
