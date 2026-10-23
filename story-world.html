@@ -106,7 +106,7 @@ const petals=[];for(let i=0;i<13;i++){const a=i*Math.PI*2/13;const p=new THREE.M
 const avatar=new THREE.Group();avatar.position.set(0,0,2.35);scene.add(avatar);
 // Photo-inspired real-time 3D character: black hijab, beige jacket, black top and cream trousers.
 // Built from low-poly smooth meshes so it renders locally without an external model/CDN.
-const characterRig=new THREE.Group();characterRig.position.y=-.12;avatar.add(characterRig);
+const characterRig=new THREE.Group();characterRig.position.y=-.05;avatar.add(characterRig);
 const skinMat=new THREE.MeshStandardMaterial({color:'#b98168',roughness:.78});
 const hijabMat=new THREE.MeshStandardMaterial({color:'#101016',roughness:.94});
 const hijabFoldMat=new THREE.MeshStandardMaterial({color:'#211e28',roughness:.9});
