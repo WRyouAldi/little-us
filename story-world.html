@@ -104,13 +104,77 @@ const petals=[];for(let i=0;i<13;i++){const a=i*Math.PI*2/13;const p=new THREE.M
 // Procedural 3D details: trees, stone path, window mullions and flower seed texture.
 // A lightweight stylized 3D traveler gives the world a clear sense of scale.
 const avatar=new THREE.Group();avatar.position.set(0,0,2.35);scene.add(avatar);
-const avatarDress=mat('#8a718c',.82),avatarSkin=mat('#e8c3b2',.8),avatarHair=mat('#29202e',.95),avatarRibbon=mat('#d9b8c7',.5);
-const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.18,.48,4,8),avatarDress);torso.position.y=.82;torso.castShadow=true;avatar.add(torso);
-const head=new THREE.Mesh(new THREE.SphereGeometry(.16,16,12),avatarSkin);head.position.set(0,1.25,.015);head.castShadow=true;avatar.add(head);
-const hairCap=new THREE.Mesh(new THREE.SphereGeometry(.17,16,12),avatarHair);hairCap.scale.set(1.02,1.1,.95);hairCap.position.set(0,1.31,-.035);avatar.add(hairCap);
-const hairBack=new THREE.Mesh(new THREE.CapsuleGeometry(.12,.34,4,8),avatarHair);hairBack.position.set(0,1.02,-.12);hairBack.scale.set(1.05,1,.7);avatar.add(hairBack);
-const ribbon=new THREE.Mesh(new THREE.TorusGeometry(.085,.018,6,14),avatarRibbon);ribbon.position.set(0,1.32,-.19);ribbon.rotation.x=Math.PI/2;avatar.add(ribbon);
-const legs=[];for(const x of [-.075,.075]){const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.055,.28,3,6),mat('#332b3b',.9));leg.position.set(x,.31,0);avatar.add(leg);legs.push(leg)}
+// Photo-inspired real-time 3D character: black hijab, beige jacket, black top and cream trousers.
+// Built from low-poly smooth meshes so it renders locally without an external model/CDN.
+const characterRig=new THREE.Group();avatar.add(characterRig);
+const skinMat=new THREE.MeshStandardMaterial({color:'#b98168',roughness:.78});
+const hijabMat=new THREE.MeshStandardMaterial({color:'#101016',roughness:.94});
+const hijabFoldMat=new THREE.MeshStandardMaterial({color:'#211e28',roughness:.9});
+const jacketMat=new THREE.MeshStandardMaterial({color:'#c9b59b',roughness:.84});
+const jacketLightMat=new THREE.MeshStandardMaterial({color:'#dfcdb5',roughness:.82});
+const shirtMat=new THREE.MeshStandardMaterial({color:'#17141a',roughness:.92});
+const pantsMat=new THREE.MeshStandardMaterial({color:'#e0d4c0',roughness:.9});
+const beltMat=new THREE.MeshStandardMaterial({color:'#242126',roughness:.68});
+const metalMat=new THREE.MeshStandardMaterial({color:'#b9a58d',metalness:.38,roughness:.38});
+const shoeMat=new THREE.MeshStandardMaterial({color:'#f1e9dc',roughness:.72});
+const faceFeatureMat=new THREE.MeshStandardMaterial({color:'#30201f',roughness:.76});
+const lipMat=new THREE.MeshStandardMaterial({color:'#8f5149',roughness:.72});
+function characterMesh(geo,material,parent,pos,scale,rot){const m=new THREE.Mesh(geo,material);m.position.set(...pos);if(scale)m.scale.set(...scale);if(rot)m.rotation.set(...rot);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m}
+function capsuleBetween(parent,material,a,b,radius,radial=10){const av=new THREE.Vector3(...a),bv=new THREE.Vector3(...b),d=bv.clone().sub(av);const m=characterMesh(new THREE.CapsuleGeometry(radius,Math.max(.01,d.length()-radius*2),4,radial),material,parent,av.clone().add(bv).multiplyScalar(.5).toArray());m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());return m}
+const characterArms=[];const characterLegs=[];const characterTorso=new THREE.Group();characterRig.add(characterTorso);
+characterMesh(new THREE.CapsuleGeometry(.205,.42,5,12),shirtMat,characterTorso,[0,.91,0],[.94,1, .78]);
+characterMesh(new THREE.BoxGeometry(.49,.56,.29),jacketMat,characterTorso,[-.145,.91,.015],[1,1,1],[0,0,-.025]);
+characterMesh(new THREE.BoxGeometry(.49,.56,.29),jacketMat,characterTorso,[.145,.91,.015],[1,1,1],[0,0,.025]);
+characterMesh(new THREE.BoxGeometry(.045,.5,.018),jacketLightMat,characterTorso,[0,.91,.17]);
+for(const side of [-1,1]){
+ const arm=new THREE.Group();arm.position.set(side*.255,1.1,0);characterTorso.add(arm);
+ capsuleBetween(arm,jacketMat,[0,-.02,0],[side*.045,-.32,.015],.105);
+ capsuleBetween(arm,jacketMat,[side*.045,-.32,.015],[side*.025,-.59,.055],.09);
+ characterMesh(new THREE.CylinderGeometry(.094,.094,.09,12),jacketLightMat,arm,[side*.025,-.57,.055]);
+ characterMesh(new THREE.SphereGeometry(.075,14,12),skinMat,arm,[side*.025,-.67,.065],[.9,1.12,.82]);
+ arm.userData.side=side;characterArms.push(arm);
+}
+
+// Tailored hijab silhouette with a crown, cheek framing and draped shoulder fabric.
+characterMesh(new THREE.SphereGeometry(.205,24,18),hijabMat,characterRig,[0,1.48,-.005],[1.02,1.18,.94]);
+characterMesh(new THREE.SphereGeometry(.174,24,18),skinMat,characterRig,[0,1.405,.105],[.83,.91,.66]);
+characterMesh(new THREE.SphereGeometry(.213,24,18),hijabMat,characterRig,[0,1.49,-.035],[1.08,1.18,1.0]);
+characterMesh(new THREE.SphereGeometry(.19,20,16),hijabFoldMat,characterRig,[0,1.27,-.085],[1.02,.8,.88]);
+characterMesh(new THREE.SphereGeometry(.075,16,12),hijabMat,characterRig,[-.137,1.34,.115],[.43,1.5,.7],[0,0,-.14]);
+characterMesh(new THREE.SphereGeometry(.075,16,12),hijabMat,characterRig,[.137,1.34,.115],[.43,1.5,.7],[0,0,.14]);
+characterMesh(new THREE.CapsuleGeometry(.105,.25,4,12),hijabMat,characterRig,[0,1.09,-.015],[1.5,1.18,.85]);
+characterMesh(new THREE.SphereGeometry(.12,18,14),hijabMat,characterRig,[0,1.03,.005],[1.65,.72,.72]);
+// Face features are intentionally subtle at gameplay scale.
+for(const side of [-1,1]){
+ characterMesh(new THREE.SphereGeometry(.018,10,8),faceFeatureMat,characterRig,[side*.061,1.432,.164],[1.0,.65,.48]);
+ characterMesh(new THREE.SphereGeometry(.027,10,8),faceFeatureMat,characterRig,[side*.061,1.466,.163],[1.45,.22,.28]);
+ characterMesh(new THREE.SphereGeometry(.009,8,6),new THREE.MeshStandardMaterial({color:'#f0d9c6',roughness:.35}),characterRig,[side*.055,1.435,.175],[.4,.5,.3]);
+}
+characterMesh(new THREE.SphereGeometry(.022,10,8),skinMat,characterRig,[0,1.395,.178],[.65,1.2,.7]);
+characterMesh(new THREE.SphereGeometry(.021,10,8),lipMat,characterRig,[0,1.363,.17],[1.25,.38,.35]);
+// Cream trousers, black belt and understated buckle.
+characterMesh(new THREE.BoxGeometry(.36,.12,.28),pantsMat,characterRig,[0,.56,0]);
+characterMesh(new THREE.BoxGeometry(.39,.055,.3),beltMat,characterRig,[0,.625,.015]);
+characterMesh(new THREE.BoxGeometry(.07,.062,.018),metalMat,characterRig,[0,.625,.171]);
+for(const side of [-1,1]){
+ const leg=new THREE.Group();leg.position.set(side*.105,.53,0);characterRig.add(leg);
+ characterMesh(new THREE.CapsuleGeometry(.095,.34,4,10),pantsMat,leg,[0,-.18,0],[1,.98,1]);
+ characterMesh(new THREE.BoxGeometry(.18,.07,.29),pantsMat,leg,[0,-.37,.015]);
+ characterMesh(new THREE.BoxGeometry(.145,.085,.25),shoeMat,leg,[0,-.44,.055]);
+ characterMesh(new THREE.BoxGeometry(.15,.018,.26),metalMat,leg,[0,-.484,.055]);
+ leg.userData.side=side;characterLegs.push(leg);
+}
+// Watch on left wrist, echoing the reference photo.
+characterMesh(new THREE.BoxGeometry(.105,.07,.055),beltMat,characterRig,[-.32,.49,.08]);
+characterMesh(new THREE.BoxGeometry(.062,.047,.012),metalMat,characterRig,[-.32,.49,.112]);
+const legs=characterLegs;
+let importedCharacter=null,characterMixer=null,walkAction=null,idleAction=null;
+const assetStatus={cottage:'loading',character:'procedural-photo-inspired',characterSource:'photo-inspired procedural meshes',characterAnimated:true};
+const gltfLoader=new GLTFLoader();
+function tintModel(root,tint,roughness=.8){root.traverse(o=>{if(!o.isMesh)return;o.castShadow=true;o.receiveShadow=true;if(o.material){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats){if(m.color)m.color.lerp(new THREE.Color(tint),.14);if('roughness' in m)m.roughness=Math.max(m.roughness??.7,roughness);m.needsUpdate=true}}})}
+// Load authored environment assets. Character is local procedural geometry and does not depend on a remote model.
+const cottageUrl='https://www.innerscene.com/api/library/cottage-with-pitched-roof-bc88ab4f/download';
+gltfLoader.load(cottageUrl,gltf=>{const model=gltf.scene;const box=new THREE.Box3().setFromObject(model),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());if(size.x&&size.y&&size.z){const scale=Math.min(3.8/size.x,2.8/size.y,2.6/size.z);model.scale.setScalar(scale);model.position.set(-center.x*scale,1.38-box.min.y*scale,-2.5-center.z*scale);tintModel(model,'#d9b8c7',.72);scene.add(model);cottageProcedural.forEach(o=>o.visible=false);assetStatus.cottage='loaded'}else assetStatus.cottage='fallback'},undefined,()=>{assetStatus.cottage='fallback'});
 const barkMat=new THREE.MeshStandardMaterial({color:'#49352f',roughness:.96,map:woodTexture,bumpMap:woodBump,bumpScale:.025});
 let importedCharacter=null,characterMixer=null,walkAction=null,idleAction=null;const assetStatus={cottage:'loading',character:'loading'};const gltfLoader=new GLTFLoader();
 function tintModel(root,tint,roughness=.8){root.traverse(o=>{if(!o.isMesh)return;o.castShadow=true;o.receiveShadow=true;if(o.material){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats){if(m.color)m.color.lerp(new THREE.Color(tint),.14);if('roughness' in m)m.roughness=Math.max(m.roughness??.7,roughness);m.needsUpdate=true}}})}
@@ -122,7 +186,8 @@ const environmentAssetBase='https://raw.githubusercontent.com/norbert351/world-r
 function fitAsset(root,targetHeight,groundY=0){root.updateWorldMatrix(true,true);const box=new THREE.Box3().setFromObject(root,true),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());if(!size.y||!Number.isFinite(size.y))return false;const s=targetHeight/size.y;root.scale.setScalar(s);root.updateWorldMatrix(true,true);const scaledBox=new THREE.Box3().setFromObject(root,true);root.position.y+=groundY-scaledBox.min.y;root.position.x-=center.x*s;root.position.z-=center.z*s;root.updateWorldMatrix(true,true);return true;}
 gltfLoader.load(environmentAssetBase+'flower-daisy.glb',gltf=>{const model=gltf.scene;if(fitAsset(model,1.55,0)){tintModel(model,'#f3e6e8',.48);model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material&&'roughness' in o.material)o.material.roughness=.48}});model.position.y-=1.18;flower.add(model);proceduralDaisy.forEach(o=>o.visible=false);assetStatus.daisy='loaded';const daisyBounds=new THREE.Box3().setFromObject(model,true);assetStatus.daisyHeight=daisyBounds.getSize(new THREE.Vector3()).y;assetStatus.daisyGroundY=daisyBounds.min.y+flower.position.y}else assetStatus.daisy='fallback'},undefined,()=>{assetStatus.daisy='fallback'});
 gltfLoader.load(environmentAssetBase+'tree-memory.glb',gltf=>{const source=gltf.scene;let count=0;for(const [x,z,s] of [[-4.1,-2.8,1.05],[4.1,-3.5,1.12],[-5.1,-6,.92],[5.2,-6.4,.98],[-3.2,-7.5,.78],[3.5,-8,.82]]){const tree=source.clone(true);if(fitAsset(tree,3.9*s,0)){tree.position.x+=x;tree.position.z+=z;tintModel(tree,'#a78b98',.82);tree.traverse(o=>{if(o.isMesh&&o.material){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats){if('roughness' in m)m.roughness=Math.max(.78,m.roughness??.78);if('metalness' in m)m.metalness=0}}});scene.add(tree);tree.updateWorldMatrix(true,true);const bounds=new THREE.Box3().setFromObject(tree,true);if(bounds.min.y<-.025)tree.position.y+=-.005-bounds.min.y;tree.userData.groundContactY=new THREE.Box3().setFromObject(tree,true).min.y;count++}}if(count){proceduralTreeObjects.forEach(o=>o.visible=false);assetStatus.trees='loaded';assetStatus.treeCount=count}else{assetStatus.trees='fallback';assetStatus.treeCount=0}},undefined,()=>{assetStatus.trees='fallback';assetStatus.treeCount=0});
-gltfLoader.load(characterUrl,gltf=>{const model=gltf.scene;const box=new THREE.Box3().setFromObject(model),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());if(size.y){const scale=1.72/size.y;model.scale.setScalar(scale);model.position.set(-center.x*scale,0,-center.z*scale);tintModel(model,'#d9b8c7',.64);avatar.children.forEach(o=>o.visible=false);avatar.visible=true;avatar.add(model);importedCharacter=model;characterMixer=new THREE.AnimationMixer(model);const clips=gltf.animations||[];const idle=clips.find(c=>/idle|stand/i.test(c.name));const walk=clips.find(c=>/relaxed walk|walk/i.test(c.name));if(idle){idleAction=characterMixer.clipAction(idle);idleAction.play()}if(walk){walkAction=characterMixer.clipAction(walk);walkAction.setLoop(THREE.LoopRepeat);walkAction.play();walkAction.enabled=false}assetStatus.character='loaded'}else assetStatus.character='fallback'},undefined,()=>{assetStatus.character='fallback'});
+// Photo-inspired character is generated locally above; no generic external character overrides it.
+
 const foliageMats=['#31483d','#3e5747','#52664c'].map(color=>mat(color,.98,{roughness:1}));
 const proceduralTreeObjects=[];for(const [x,z,scale] of [[-4.1,-2.8,1.1],[4.1,-3.5,1.25],[-5.1,-6,.9],[5.2,-6.4,1.05]]){
  const treeStart=scene.children.length;const trunk=addMesh(new THREE.CylinderGeometry(.09*scale,.15*scale,1.25*scale,9),barkMat,[x,.53*scale,z]);
@@ -147,7 +212,7 @@ const starPos=[];for(let i=0;i<180;i++)starPos.push((Math.random()-.5)*22,2+Math
 let tx=0,ty=0,cx=0,cy=1.05,dragging=false,lastX=0,lastY=0;canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture?.(e.pointerId)},{passive:true});canvas.addEventListener('pointerup',()=>dragging=false,{passive:true});canvas.addEventListener('pointercancel',()=>dragging=false,{passive:true});canvas.addEventListener('pointermove',e=>{const r=canvas.getBoundingClientRect();tx=((e.clientX-r.left)/r.width-.5)*.6;ty=((e.clientY-r.top)/r.height-.5)*.22;if(dragging){cx=Math.max(-2.2,Math.min(2.2,cx+(e.clientX-lastX)*-.008));cy=Math.max(.65,Math.min(1.8,cy+(e.clientY-lastY)*.004));lastX=e.clientX;lastY=e.clientY}},{passive:true});
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();let walkTarget=null;canvas.addEventListener('click',e=>{if($('memory').classList.contains('show'))return;const r=canvas.getBoundingClientRect();ndc.x=((e.clientX-r.left)/r.width)*2-1;ndc.y=-((e.clientY-r.top)/r.height)*2+1;ray.setFromCamera(ndc,camera);const hit=ray.intersectObjects([...beacons.flatMap(b=>[b.c,b.h]),...flower.children],true)[0];if(hit){let o=hit.object;while(o&&!Number.isInteger(o.userData.memoryIndex)&&o.parent)o=o.parent;if(o&&Number.isInteger(o.userData.memoryIndex))openMoment(o.userData.memoryIndex);else openMoment(3);return}const floorHit=ray.intersectObject(ground,false)[0];if(floorHit){const p=floorHit.point;walkTarget={x:Math.max(-3.2,Math.min(3.2,p.x)),z:Math.max(-.1,Math.min(3.8,p.z))};$('walkTip').innerHTML='Menuju titik yang dipilih…<br><span>Ketuk tanah untuk berjalan</span>'}},{passive:true});
 function pulsate(){flower.scale.setScalar(1.12);setTimeout(()=>flower.scale.setScalar(1),420)}
-const clock=new THREE.Clock();let lastMoveTime=performance.now();function dtSafe(){const now=performance.now(),dt=Math.min(.05,(now-lastMoveTime)/1000);lastMoveTime=now;return dt}function animate(){requestAnimationFrame(animate);samplePerformance(performance.now());const delta=dtSafe(),t=clock.getElapsedTime();let isWalking=false;if(walkTarget){const moveDt=delta,dx=walkTarget.x-avatar.position.x,dz=walkTarget.z-avatar.position.z,dist=Math.hypot(dx,dz);if(dist>.08){const step=Math.min(dist,moveDt*1.15);avatar.position.x+=dx/dist*step;avatar.position.z+=dz/dist*step;avatar.rotation.y=Math.atan2(dx,dz);legs[0].rotation.x=Math.sin(t*10)*.45;legs[1].rotation.x=-Math.sin(t*10)*.45;isWalking=true}else{walkTarget=null;legs.forEach(l=>l.rotation.x=0);$('walkTip').innerHTML='Kamu sudah sampai.<br><span>Pilih cahaya kenangan</span>'}}if(characterMixer){characterMixer.update(delta);if(walkAction&&idleAction){if(isWalking&&!walkAction.enabled){walkAction.enabled=true;walkAction.reset().play();idleAction.fadeOut(.2);walkAction.fadeIn(.2)}else if(!isWalking&&walkAction.enabled){walkAction.fadeOut(.2);walkAction.enabled=false;idleAction.reset().fadeIn(.2).play()}}}if(!dragging){cx+=(tx-cx)*.025;cy+=(1.05+ty-cy)*.025}camera.position.x=cx+avatar.position.x*.22;camera.lookAt(cx*.3+avatar.position.x*.32,cy,0);const wp=waterGeo.attributes.position;for(let i=0;i<wp.count;i++){const x=lakeBase[i*3],z=lakeBase[i*3+2];wp.setY(i,Math.sin(x*.8+t*.75)*.018+Math.cos(z*1.1+t*.55)*.014)}wp.needsUpdate=true;waterGeo.computeVertexNormals();flower.rotation.z=Math.sin(t*.7)*.025;flower.position.y=1.18+Math.sin(t*.85)*.045;glow.material.opacity=.05+Math.sin(t*.45)*.02;beacons.forEach(b=>{b.g.position.y=b.baseY+Math.sin(t*1.2+b.phase)*.045;b.c.scale.setScalar(1+Math.sin(t*2+b.phase)*.12);b.h.material.opacity=.08+(Math.sin(t*1.4+b.phase)+1)*.04});fireflies.forEach(f=>{f.o.position.y=f.y+Math.sin(t*1.2+f.phase)*.16;f.o.position.x=f.x+Math.sin(t*.35+f.phase)*.08});renderer.render(scene,camera)}animate();
-window.__LITTLE_US_TEST__={renderer,scene,camera,quality,beaconCount:beacons.length,memoryCount:moments.length,flower,avatar,assetStatus,walkable:!!ground,fireflyCount:fireflies.length,realism:{proceduralTextures:typeof proceduralTexture==='function',bumpMaps:typeof bumpTexture==='function',organicPetals:typeof organicPetalGeometry==='function',trees:!!barkMat,path:!!pathGroup,petals:petals.length,animatedLake:!!lake},lighting:{aces:renderer.toneMapping===THREE.ACESFilmicToneMapping,softShadows:renderer.shadowMap.enabled,hemisphere:true},environment:{daisy:'pending',trees:'pending',assetBase:environmentAssetBase}};
+const clock=new THREE.Clock();let lastMoveTime=performance.now();function dtSafe(){const now=performance.now(),dt=Math.min(.05,(now-lastMoveTime)/1000);lastMoveTime=now;return dt}function animate(){requestAnimationFrame(animate);samplePerformance(performance.now());const delta=dtSafe(),t=clock.getElapsedTime();let isWalking=false;if(walkTarget){const moveDt=delta,dx=walkTarget.x-avatar.position.x,dz=walkTarget.z-avatar.position.z,dist=Math.hypot(dx,dz);if(dist>.08){const step=Math.min(dist,moveDt*1.15);avatar.position.x+=dx/dist*step;avatar.position.z+=dz/dist*step;avatar.rotation.y=Math.atan2(dx,dz);legs[0].rotation.x=Math.sin(t*10)*.45;legs[1].rotation.x=-Math.sin(t*10)*.45;characterArms.forEach(a=>a.rotation.x=isWalking?Math.sin(t*10+Math.PI)*.14:Math.sin(t*1.1+a.userData.side)*.018);characterTorso.position.y=Math.sin(t*1.6)*.012;isWalking=true}else{walkTarget=null;legs.forEach(l=>l.rotation.x=0);$('walkTip').innerHTML='Kamu sudah sampai.<br><span>Pilih cahaya kenangan</span>'}}if(characterMixer){characterMixer.update(delta);if(walkAction&&idleAction){if(isWalking&&!walkAction.enabled){walkAction.enabled=true;walkAction.reset().play();idleAction.fadeOut(.2);walkAction.fadeIn(.2)}else if(!isWalking&&walkAction.enabled){walkAction.fadeOut(.2);walkAction.enabled=false;idleAction.reset().fadeIn(.2).play()}}}if(!dragging){cx+=(tx-cx)*.025;cy+=(1.05+ty-cy)*.025}camera.position.x=cx+avatar.position.x*.22;camera.lookAt(cx*.3+avatar.position.x*.32,cy,0);const wp=waterGeo.attributes.position;for(let i=0;i<wp.count;i++){const x=lakeBase[i*3],z=lakeBase[i*3+2];wp.setY(i,Math.sin(x*.8+t*.75)*.018+Math.cos(z*1.1+t*.55)*.014)}wp.needsUpdate=true;waterGeo.computeVertexNormals();flower.rotation.z=Math.sin(t*.7)*.025;flower.position.y=1.18+Math.sin(t*.85)*.045;glow.material.opacity=.05+Math.sin(t*.45)*.02;beacons.forEach(b=>{b.g.position.y=b.baseY+Math.sin(t*1.2+b.phase)*.045;b.c.scale.setScalar(1+Math.sin(t*2+b.phase)*.12);b.h.material.opacity=.08+(Math.sin(t*1.4+b.phase)+1)*.04});fireflies.forEach(f=>{f.o.position.y=f.y+Math.sin(t*1.2+f.phase)*.16;f.o.position.x=f.x+Math.sin(t*.35+f.phase)*.08});renderer.render(scene,camera)}animate();
+window.__LITTLE_US_TEST__={renderer,scene,camera,quality,beaconCount:beacons.length,memoryCount:moments.length,flower,avatar,characterRig,assetStatus,walkable:!!ground,fireflyCount:fireflies.length,realism:{proceduralTextures:typeof proceduralTexture==='function',bumpMaps:typeof bumpTexture==='function',organicPetals:typeof organicPetalGeometry==='function',trees:!!barkMat,path:!!pathGroup,petals:petals.length,animatedLake:!!lake},lighting:{aces:renderer.toneMapping===THREE.ACESFilmicToneMapping,softShadows:renderer.shadowMap.enabled,hemisphere:true},environment:{daisy:'pending',trees:'pending',assetBase:environmentAssetBase}};
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.position.z=innerWidth<500?11.8:9.6;camera.position.y=innerWidth<500?3.65:3.2;camera.updateProjectionMatrix();quality.maxDpr=Math.min(({ultra:2.5,high:2.25,balanced:1.8,efficient:1.35})[quality.tier],devicePixelRatio||1,Math.sqrt(({ultra:6500000,high:4800000,balanced:3200000,efficient:1900000})[quality.tier]/Math.max(1,innerWidth*innerHeight)));applyAdaptiveResolution(quality.adaptiveScale)});
 </script></body></html>
