@@ -7,6 +7,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
 <style>
 :root{color-scheme:dark;--rose:#f4c4c9;--gold:#f5d68e;--ink:#1a0a20}*{box-sizing:border-box}body{margin:0;min-height:100svh;font-family:system-ui,-apple-system,sans-serif;color:#fff3f3;background:radial-gradient(ellipse at 50% 45%,#58344f 0,#28162f 45%,#100b1b 100%);overflow:hidden}.sky{position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(2px 2px at 15% 20%,#fff 50%,transparent),radial-gradient(1px 1px at 70% 15%,#fff 50%,transparent),radial-gradient(2px 2px at 82% 43%,#fff 50%,transparent),radial-gradient(1px 1px at 35% 60%,#fff 50%,transparent);opacity:.7}.snow{position:fixed;inset:-10% 0 0;pointer-events:none;background-image:radial-gradient(3px 3px at 20% 10%,#fff9 50%,transparent),radial-gradient(2px 2px at 60% 20%,#fff8 50%,transparent),radial-gradient(3px 3px at 85% 50%,#fff9 50%,transparent),radial-gradient(2px 2px at 40% 70%,#fff8 50%,transparent);background-size:240px 240px;animation:snow 18s linear infinite}@keyframes snow{to{transform:translateY(240px)}}header{position:relative;display:flex;justify-content:space-between;align-items:center;padding:calc(18px + env(safe-area-inset-top)) 20px 0}.brand{letter-spacing:.2em;font-size:12px;font-weight:800}.brand small{display:block;letter-spacing:.06em;font-weight:400;opacity:.65;margin-top:3px}.pill,.date{border:1px solid #ffffff2c;background:#ffffff10;color:#fff0f3;border-radius:99px;padding:10px 13px;font:inherit;font-size:12px;backdrop-filter:blur(10px)}main{position:relative;height:calc(100svh - 175px);min-height:430px;display:flex;align-items:center;justify-content:center}.moon{position:absolute;top:10%;right:13%;width:58px;height:58px;border-radius:50%;background:#ffedc8;box-shadow:0 0 50px #ffdbad66}.hills{position:absolute;bottom:0;left:-10%;right:-10%;height:36%;border-radius:50% 50% 0 0;background:linear-gradient(#d9e0ec,#a8b7d3);opacity:.28}.house{position:absolute;bottom:16%;width:180px;height:115px;border-radius:8px 8px 3px 3px;background:linear-gradient(145deg,#53334e,#27162e);box-shadow:0 0 55px #ffc88a27;cursor:pointer}.roof{position:absolute;left:-17px;right:-17px;top:-42px;height:70px;background:#3c233e;clip-path:polygon(50% 0,100% 100%,0 100%)}.window{position:absolute;top:25px;left:26px;width:38px;height:45px;border:3px solid #c9a7a9;background:#ffcf85;box-shadow:0 0 22px #ffcf85a0}.window.two{left:auto;right:26px}.door{position:absolute;bottom:0;left:73px;width:34px;height:58px;background:#1b1024;border:2px solid #9c727f;border-bottom:0;border-radius:15px 15px 0 0}.daisy{position:absolute;top:15%;left:50%;transform:translateX(-50%);width:145px;height:150px;cursor:pointer;filter:drop-shadow(0 0 16px #ffe88930);animation:bob 4s ease-in-out infinite}@keyframes bob{50%{translate:0 -7px}}.petal{position:absolute;left:58px;top:8px;width:30px;height:52px;border-radius:50%;background:linear-gradient(#fff5b2,#f5c84f);transform-origin:15px 65px}.center{position:absolute;left:55px;top:52px;width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#9a5c23,#5c351e);border:3px solid #f8d96b}.stem{position:absolute;left:70px;top:84px;width:6px;height:68px;background:#7fa67c;border-radius:8px;transform:rotate(4deg)}.leaf{position:absolute;top:113px;left:73px;width:35px;height:17px;background:#9ab98e;border-radius:100% 0 100% 0;transform:rotate(-20deg)}.date-wrap{position:absolute;bottom:5%;left:0;right:0;text-align:center}.date{font-size:13px;letter-spacing:.08em;color:#ffe5b8;cursor:pointer}.bottom{position:relative;padding:0 16px calc(18px + env(safe-area-inset-bottom));text-align:center}.hint{font-size:12px;opacity:.78;min-height:22px;margin-bottom:12px}.actions{display:flex;gap:10px;justify-content:center}.action{flex:1;max-width:135px;padding:13px 5px;border-radius:18px;border:1px solid #ffffff28;background:#ffffff12;color:#fff2f4;font:inherit;font-size:12px;backdrop-filter:blur(12px);cursor:pointer}.action span{display:block;font-size:24px;margin-bottom:4px;color:var(--rose)}.modal-bg{display:none;position:fixed;z-index:5;inset:0;background:#100916b8;backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px}.modal-bg.show{display:flex}.modal{width:min(100%,360px);border:1px solid #ffffff2b;background:linear-gradient(145deg,#39213f,#1c1025);border-radius:26px;padding:23px;box-shadow:0 20px 80px #0007}.modal h2{margin:0 0 8px;font-size:22px}.modal p{font-size:13px;line-height:1.5;opacity:.8}.modal input{width:100%;padding:14px;border:1px solid #ffffff30;border-radius:14px;background:#100916;color:white;font-size:18px;letter-spacing:.25em;text-align:center}.primary,.secondary{width:100%;padding:13px;margin-top:10px;border:0;border-radius:14px;background:#f0c7ce;color:#30152c;font-weight:700;font-size:14px}.secondary{background:#ffffff12;color:#fff}.status{font-size:12px;min-height:20px;margin-top:8px;color:#ffdf9f}.days{font-size:40px;color:var(--gold);font-weight:750;margin:10px}.event{border-bottom:1px solid #ffffff18;padding:10px 0;font-size:13px}.hidden{display:none!important}@media(min-width:650px){main{height:calc(100svh - 150px)}.daisy{top:12%}.house{bottom:14%}.bottom{max-width:470px;margin:auto}}
 
@@ -198,26 +199,35 @@ $('pairButton').onclick=()=>modal('pairModal');$('dateButton').onclick=()=>modal
 $('daisy').onclick=()=>{document.querySelector('.daisy').animate([{transform:'translateX(-50%) scale(1)'},{transform:'translateX(-50%) scale(1.16) rotate(8deg)'},{transform:'translateX(-50%) scale(1)'}],{duration:650,easing:'ease-out'});say('Daisy mekar untuk cerita kita 🌼')};
 $('house').onclick=()=>{if(pair){modal('eventsModal');loadEvents()}else modal('pairModal')};
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>modal(b.dataset.close,false));
-async function initFirebase(){if(!auth||!db)throw new Error('Firebase SDK belum termuat. Periksa koneksi internet.');if(!auth.currentUser)await auth.signInAnonymously();return auth.currentUser}
+async function loginWithRoomPin(pin){
+ if(!auth||!db||!firebase.functions)throw new Error('Layanan login belum siap. Periksa koneksi internet.');
+ const callLogin=firebase.functions().httpsCallable('loginWithPin');
+ const response=await callLogin({pin});
+ if(!response.data||!response.data.token)throw new Error('Token login tidak diterima.');
+ if(auth.currentUser)await auth.signOut();
+ return auth.signInWithCustomToken(response.data.token);
+}
 $('join').onclick=async()=>{
  const pin=$('pin').value.trim();
- if(pin!=='271125'){$('pairStatus').textContent='PIN bersama harus 271125 ♡';return}
- $('pairStatus').textContent='Menyiapkan identitas perangkat…';
+ if(!/^\\d{6}$/.test(pin)){$('pairStatus').textContent='Masukkan PIN 6 digit untuk masuk ♡';return}
+ $('join').disabled=true;
+ $('pairStatus').textContent='Memeriksa PIN…';
  try{
-  const user=await initFirebase();
-  const uid=user.uid;
-  $('pairStatus').textContent='ID perangkat (salin ke Firebase Rules): '+uid+' — jika belum didaftarkan, akses akan ditolak. Buka petunjuk SETUP_FIREBASE.md di GitHub.';
-  try{
-   await db.ref('littleUs/room/signals').limitToLast(1).once('value');
-   pair={uid,displayName:'Little Us'};
-   $('pairButton').textContent='♡ Terhubung';
-   $('pairStatus').textContent='Terhubung dengan ruang Little Us ♡';
-   modal('pairModal',false);say('Ruang Little Us terhubung ♡');subscribe();
-  }catch(dbError){
-   console.warn(dbError);
-   $('pairStatus').textContent='ID perangkat kamu: '+uid+' | Belum diizinkan. Tambahkan UID ini ke Rules sesuai SETUP_FIREBASE.md, lalu tekan Hubungkan lagi.';
-  }
- }catch(e){console.error(e);$('pairStatus').textContent='Gagal masuk: '+(e.code==='auth/operation-not-allowed'?'aktifkan Anonymous di Firebase Authentication.':e.message||'periksa koneksi internet.')}
+  const credential=await loginWithRoomPin(pin);
+  const user=credential.user;
+  const tokenResult=await user.getIdTokenResult(true);
+  if(tokenResult.claims.roomMember!==true)throw new Error('Akun belum memiliki akses ke ruang Little Us.');
+  pair={uid:user.uid,displayName:'Little Us'};
+  await db.ref('littleUs/room/signals').limitToLast(1).once('value');
+  $('pairButton').textContent='♡ Terhubung';
+  $('pairStatus').textContent='Berhasil masuk ke ruang Little Us ♡';
+  $('pin').value='';
+  modal('pairModal',false);say('Ruang Little Us terhubung ♡');subscribe();
+ }catch(e){
+  console.error(e);
+  const code=e.code||'';
+  $('pairStatus').textContent=code.includes('unauthenticated')||code.includes('functions/unauthenticated')?'PIN tidak sesuai. Coba lagi ♡':code.includes('permission-denied')?'Login berhasil, tetapi aturan database belum dipublikasikan.':'Belum bisa terhubung. Pastikan layanan login sudah di-deploy dan internet aktif.';
+ }finally{$('join').disabled=false}
 }; 
 async function send(kind){if(!pair||!auth.currentUser){modal('pairModal');say('Hubungkan ke ruang Little Us terlebih dahulu ♡');return}
 const labels={kangen:'Kangen ♡',peluk:'Peluk ☁',daisy:'Daisy 🌼'};say('Mengirim '+labels[kind]+'…');
